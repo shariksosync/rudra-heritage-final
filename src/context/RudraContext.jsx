@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { hydrateStore, INITIAL_STORE } from "@/data/mock-data.js";
 
@@ -7,8 +7,9 @@ const STORAGE_KEY = "rudra-arts-demo-v1";
 
 export function RudraProvider({ children }) {
   const routerNavigate = useNavigate();
-  const path = useRouterState({ select: (state) => state.location.pathname });
-  const urlSearch = useRouterState({ select: (state) => state.location.search });
+  const rawPath = useRouterState({ select: (state) => state.location.pathname });
+  const path = rawPath && rawPath.length > 1 && rawPath.endsWith("/") ? rawPath.slice(0, -1) : rawPath || "/";
+  const urlSearch = useRouterState({ select: (state) => state.location.search || {} });
   const [store, setStore] = useState(INITIAL_STORE);
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
@@ -19,7 +20,20 @@ export function RudraProvider({ children }) {
   const [inquiryOpen, setInquiryOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [toast, setToast] = useState(null);
   const [ready, setReady] = useState(false);
+  const toastTimerRef = useRef(null);
+
+  const showToast = useCallback((message) => {
+    if (!message) return;
+    setToast(message);
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => setToast(null), 2800);
+  }, []);
+
+  useEffect(() => () => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+  }, []);
 
   useEffect(() => {
     try {
@@ -57,10 +71,15 @@ export function RudraProvider({ children }) {
 
   const navigate = useCallback(
     (destination) => {
-      if (typeof destination !== "string") return;
-      const [to, query = ""] = destination.split("?");
+      if (typeof destination !== "string" || !destination.trim()) return;
+      if (/^https?:\/\//i.test(destination)) {
+        if (typeof window !== "undefined") window.location.assign(destination);
+        return;
+      }
+      const [rawTo, query = ""] = destination.split("?");
+      const normalizedTo = rawTo.length > 1 && rawTo.endsWith("/") ? rawTo.slice(0, -1) : rawTo || "/";
       const search = Object.fromEntries(new URLSearchParams(query).entries());
-      const options = Object.keys(search).length > 0 ? { to, search } : { to };
+      const options = Object.keys(search).length > 0 ? { to: normalizedTo, search } : { to: normalizedTo };
       void routerNavigate(options);
       setMobileMenuOpen(false);
       setSearchOpen(false);
@@ -73,18 +92,31 @@ export function RudraProvider({ children }) {
     setStore((current) => (typeof updater === "function" ? updater(current) : { ...current, ...updater }));
   }, []);
 
-  const addToCart = useCallback((product, quantity = 1) => {
-    if (!product || product.price <= 0 || quantity <= 0) return;
-    setCart((current) => {
-      const existing = current.find((item) => item.productId === product.id);
-      if (existing) {
-        return current.map((item) =>
-          item.productId === product.id ? { ...item, quantity: item.quantity + quantity } : item,
-        );
-      }
-      return [...current, { productId: product.id, quantity }];
-    });
-  }, []);
+  const addToCart = useCallback(
+    (product, quantity = 1, silent = false) => {
+      if (!product || product.price <= 0 || quantity <= 0) return;
+      setCart((current) => {
+        const existing = current.find((item) => item.productId === product.id);
+        if (existing) {
+          return current.map((item) =>
+            item.productId === product.id ? { ...item, quantity: item.quantity + quantity } : item,
+          );
+        }
+        return [...current, { productId: product.id, quantity }];
+      });
+      if (!silent) showToast(`Added "${product.name}" to your cart`);
+    },
+    [showToast],
+  );
+
+  const buyNow = useCallback(
+    (product, quantity = 1) => {
+      if (!product || product.price <= 0 || quantity <= 0) return;
+      addToCart(product, quantity, true);
+      navigate("/checkout");
+    },
+    [addToCart, navigate],
+  );
 
   const setCartQuantity = useCallback((productId, quantity) => {
     setCart((current) =>
@@ -94,11 +126,17 @@ export function RudraProvider({ children }) {
     );
   }, []);
 
-  const toggleWishlist = useCallback((productId) => {
-    setWishlist((current) =>
-      current.includes(productId) ? current.filter((id) => id !== productId) : [...current, productId],
-    );
-  }, []);
+  const toggleWishlist = useCallback(
+    (productId) => {
+      const target = store.products.find((item) => item.id === productId);
+      setWishlist((current) => {
+        const exists = current.includes(productId);
+        if (target) showToast(exists ? `Removed "${target.name}" from wishlist` : `Saved "${target.name}" to wishlist`);
+        return exists ? current.filter((id) => id !== productId) : [...current, productId];
+      });
+    },
+    [store.products, showToast],
+  );
 
   const addInquiry = useCallback(
     (fields) => {
@@ -128,9 +166,13 @@ export function RudraProvider({ children }) {
       cart,
       setCart,
       addToCart,
+      buyNow,
       setCartQuantity,
       wishlist,
       toggleWishlist,
+      toast,
+      setToast,
+      showToast,
       customer,
       setCustomer,
       adminAuthenticated,
@@ -156,9 +198,12 @@ export function RudraProvider({ children }) {
       updateStore,
       cart,
       addToCart,
+      buyNow,
       setCartQuantity,
       wishlist,
       toggleWishlist,
+      toast,
+      showToast,
       customer,
       adminAuthenticated,
       lastOrder,

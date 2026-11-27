@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { matchesAdminCredentials, RUDRA_IMAGES } from "@/data/mock-data.js";
+import { ADMIN_EMAIL, ADMIN_PASSWORD, matchesAdminCredentials, RUDRA_IMAGES } from "@/data/mock-data.js";
 import { useRudra } from "@/context/RudraContext.jsx";
-import { Button, Icon, formatPrice } from "@/components/StoreUI.jsx";
+import { Button, Icon, StoreImage, formatPrice } from "@/components/StoreUI.jsx";
 
 const ADMIN_SECTIONS = [
   ["/admin/dashboard", "Overview", "grid"],
@@ -51,6 +51,12 @@ function AdminLogin() {
     navigate("/admin/dashboard");
   }
 
+  function autofillDemo() {
+    setEmail(ADMIN_EMAIL);
+    setPassword(ADMIN_PASSWORD);
+    setError("");
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-sand px-4 py-12">
       <div className="w-full max-w-md border border-border bg-card px-7 py-9 shadow-heritage sm:px-10">
@@ -69,9 +75,12 @@ function AdminLogin() {
             <input required type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} className="mt-2 w-full border border-input bg-background px-3 py-3 text-sm outline-none transition focus:border-primary" placeholder="Enter your password" />
           </label>
           {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-          <Button type="submit" className="w-full">Sign in to dashboard <Icon name="arrow" size={16} /></Button>
+          <div className="space-y-2.5 pt-1">
+            <Button type="submit" className="w-full">Sign in to dashboard <Icon name="arrow" size={16} /></Button>
+            <Button type="button" variant="outline" size="small" className="w-full" onClick={autofillDemo}><Icon name="spark" size={14} />Auto-fill demo credentials</Button>
+          </div>
         </form>
-        <p className="mt-6 border-t border-border pt-5 text-xs leading-5 text-muted-foreground">Demo access: <span className="font-medium text-foreground">admin@rudraarts.com</span> · <span className="font-medium text-foreground">Rudra@123</span></p>
+        <p className="mt-6 border-t border-border pt-5 text-xs leading-5 text-muted-foreground">Demo access: <span className="font-medium text-foreground">{ADMIN_EMAIL}</span> · <span className="font-medium text-foreground">{ADMIN_PASSWORD}</span></p>
       </div>
     </div>
   );
@@ -150,7 +159,8 @@ function StatCard({ label, value, note, icon }) {
 
 function AdminDashboard() {
   const { store, navigate } = useRudra();
-  const revenue = store.orders.filter((order) => order.status !== "Cancelled").reduce((sum, order) => sum + Number(order.total || 0), 0);
+  const activeOrders = store.orders.filter((order) => order.status !== "Cancelled");
+  const revenue = activeOrders.reduce((sum, order) => sum + Number(order.total || 0), 0);
   const pending = store.orders.filter((order) => ["Pending", "Confirmed", "Processing"].includes(order.status)).length;
   const newInquiries = store.inquiries.filter((inquiry) => inquiry.status === "New").length;
   const stats = [
@@ -161,10 +171,64 @@ function AdminDashboard() {
     ["Pending orders", pending, "Awaiting fulfillment", "clock"],
     ["New inquiries", newInquiries, "Need a first response", "message"],
   ];
+
+  const statusCounts = ORDER_STATUSES.map((status) => ({
+    label: status,
+    count: store.orders.filter((order) => order.status === status).length,
+  }));
+  const maxStatusCount = Math.max(1, ...statusCounts.map((item) => item.count));
+
+  const categoryTotals = store.categories.map((cat) => ({
+    label: cat.shortName || cat.name,
+    count: store.products.filter((product) => product.category === cat.id).length,
+  }));
+  const maxCategoryCount = Math.max(1, ...categoryTotals.map((item) => item.count));
+
   return (
     <>
       <AdminHeading eyebrow="Good to see you" title="Store overview" description="A clear view of your shop today, from new enquiries to orders in progress." action={<Button variant="outline" onClick={() => navigate("/admin/products")}><Icon name="plus" size={16} />Add a product</Button>} />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{stats.map(([label, value, note, icon]) => <StatCard key={label} label={label} value={value} note={note} icon={icon} />)}</div>
+
+      <div className="mt-7 grid gap-6 lg:grid-cols-2">
+        <section className="border border-border bg-card p-5">
+          <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Fulfillment mix</p>
+          <h3 className="mt-1 font-display text-xl">Orders by status</h3>
+          <div className="mt-4 space-y-3">
+            {statusCounts.map((item) => (
+              <div key={item.label} className="grid grid-cols-[96px_1fr_32px] items-center gap-3 text-xs">
+                <span className="truncate font-medium text-foreground">{item.label}</span>
+                <div className="h-2.5 overflow-hidden bg-sand/70">
+                  <div
+                    className="h-full bg-primary transition-all duration-300"
+                    style={{ width: `${Math.round((item.count / maxStatusCount) * 100)}%` }}
+                  />
+                </div>
+                <span className="text-right font-semibold text-muted-foreground">{item.count}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="border border-border bg-card p-5">
+          <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Catalog distribution</p>
+          <h3 className="mt-1 font-display text-xl">Pieces per collection</h3>
+          <div className="mt-4 space-y-3">
+            {categoryTotals.map((item) => (
+              <div key={item.label} className="grid grid-cols-[140px_1fr_32px] items-center gap-3 text-xs">
+                <span className="truncate font-medium text-foreground">{item.label}</span>
+                <div className="h-2.5 overflow-hidden bg-sand/70">
+                  <div
+                    className="h-full bg-antique-gold transition-all duration-300"
+                    style={{ width: `${Math.round((item.count / maxCategoryCount) * 100)}%` }}
+                  />
+                </div>
+                <span className="text-right font-semibold text-muted-foreground">{item.count}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
       <div className="mt-7 grid gap-6 xl:grid-cols-[1.4fr_0.8fr]">
         <section className="border border-border bg-card">
           <div className="flex items-center justify-between border-b border-border px-5 py-4"><div><p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Latest activity</p><h3 className="mt-1 font-display text-xl">Recent orders</h3></div><button onClick={() => navigate("/admin/orders")} className="text-xs font-semibold text-primary hover:underline">View all</button></div>
@@ -201,20 +265,36 @@ function AdminProducts() {
   const { store, updateStore } = useRudra();
   const [editing, setEditing] = useState(null);
   const [search, setSearch] = useState("");
-  const blank = () => ({ id: "", name: "", category: store.categories[0]?.id || "statues", price: "", originalPrice: "", image: RUDRA_IMAGES.shivajiBust, description: "", material: "", dimensions: "", weight: "", stock: "0", specifications: "", featured: false, bestselling: false, popularity: 50, created: new Date().toISOString().slice(0, 10) });
+  const blank = () => ({ id: "", name: "", category: store.categories[0]?.id || "statues", price: "", originalPrice: "", image: RUDRA_IMAGES.shivajiBust, extraImages: "", description: "", material: "", dimensions: "", weight: "", stock: "0", specifications: "", featured: false, bestselling: false, popularity: 50, created: new Date().toISOString().slice(0, 10) });
   const [draft, setDraft] = useState(blank);
   const items = store.products.filter((product) => `${product.name} ${product.category}`.toLowerCase().includes(search.toLowerCase()));
 
   function saveProduct(event) {
     event.preventDefault();
-    const id = draft.id || draft.name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-    const product = { ...draft, id, price: Number(draft.price), originalPrice: draft.originalPrice ? Number(draft.originalPrice) : null, stock: Number(draft.stock), images: draft.images?.length ? draft.images : [draft.image], popularity: Number(draft.popularity || 50) };
-    updateStore((current) => ({ ...current, products: editing ? current.products.map((item) => item.id === editing ? product : item) : [product, ...current.products] }));
+    const baseSlug = draft.name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || `piece-${Date.now()}`;
+    const existingIds = new Set(store.products.map((item) => item.id));
+    const resolvedId = editing && editing !== "new"
+      ? editing
+      : existingIds.has(baseSlug)
+        ? `${baseSlug}-${String(Date.now()).slice(-4)}`
+        : baseSlug;
+    const extras = String(draft.extraImages || "")
+      .split(/[\n,]+/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+    const images = Array.from(new Set([draft.image, ...extras].filter(Boolean)));
+    const { extraImages: _unused, ...cleanDraft } = draft;
+    const product = { ...cleanDraft, id: resolvedId, price: Number(draft.price), originalPrice: draft.originalPrice ? Number(draft.originalPrice) : null, stock: Number(draft.stock), images, popularity: Number(draft.popularity || 50) };
+    updateStore((current) => ({ ...current, products: editing && editing !== "new" ? current.products.map((item) => item.id === editing ? product : item) : [product, ...current.products] }));
     setEditing(null);
     setDraft(blank());
   }
 
-  function editProduct(product) { setEditing(product.id); setDraft({ ...product, price: String(product.price), originalPrice: product.originalPrice ? String(product.originalPrice) : "", stock: String(product.stock), images: product.images || [product.image] }); }
+  function editProduct(product) {
+    setEditing(product.id);
+    const extras = (product.images || []).filter((src) => src && src !== product.image).join(", ");
+    setDraft({ ...product, price: String(product.price), originalPrice: product.originalPrice ? String(product.originalPrice) : "", stock: String(product.stock), extraImages: extras });
+  }
   function deleteProduct(id) { if (window.confirm("Remove this product from the store?")) updateStore((current) => ({ ...current, products: current.products.filter((item) => item.id !== id) })); }
   function field(name, label, type = "text") { return <label className="block text-xs font-semibold text-foreground">{label}<input required={name === "name" || name === "price"} type={type} value={draft[name] ?? ""} onChange={(event) => setDraft((current) => ({ ...current, [name]: event.target.value }))} className="mt-1.5 w-full border border-input bg-background px-3 py-2.5 text-sm font-normal outline-none focus:border-primary" /></label>; }
 
@@ -227,7 +307,7 @@ function AdminProducts() {
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {field("name", "Product name")}{field("price", "Price (INR)", "number")}{field("originalPrice", "Original price (optional)", "number")}
           <label className="block text-xs font-semibold">Category<select value={draft.category} onChange={(event) => setDraft((current) => ({ ...current, category: event.target.value }))} className="mt-1.5 w-full border border-input bg-background px-3 py-2.5 text-sm font-normal">{store.categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label>
-          {field("stock", "Stock quantity", "number")}{field("image", "Image URL")}{field("material", "Material")}{field("dimensions", "Dimensions")}{field("weight", "Weight")}
+          {field("stock", "Stock quantity", "number")}{field("image", "Primary image URL")}{field("extraImages", "Additional image URLs (comma-separated)")}{field("material", "Material")}{field("dimensions", "Dimensions")}{field("weight", "Weight")}
           <label className="block text-xs font-semibold sm:col-span-2">Description<textarea rows="2" value={draft.description} onChange={(event) => setDraft((current) => ({ ...current, description: event.target.value }))} className="mt-1.5 w-full border border-input bg-background px-3 py-2.5 text-sm font-normal" /></label>
           <label className="block text-xs font-semibold sm:col-span-2">Specifications<textarea rows="2" value={draft.specifications} onChange={(event) => setDraft((current) => ({ ...current, specifications: event.target.value }))} className="mt-1.5 w-full border border-input bg-background px-3 py-2.5 text-sm font-normal" /></label>
           <div className="flex flex-wrap items-center gap-4 sm:col-span-2 xl:col-span-3"><label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={Boolean(draft.featured)} onChange={(event) => setDraft((current) => ({ ...current, featured: event.target.checked }))} />Featured</label><label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={Boolean(draft.bestselling)} onChange={(event) => setDraft((current) => ({ ...current, bestselling: event.target.checked }))} />Bestselling</label></div>
@@ -236,7 +316,7 @@ function AdminProducts() {
       </form>}
       <div className="overflow-x-auto border border-border bg-card">
         <table className="w-full min-w-[760px] text-left text-sm"><thead className="bg-muted text-[10px] uppercase tracking-[0.12em] text-muted-foreground"><tr><th className="px-4 py-3">Product</th><th className="px-4 py-3">Category</th><th className="px-4 py-3">Price</th><th className="px-4 py-3">Stock</th><th className="px-4 py-3">Placement</th><th className="px-4 py-3 text-right">Actions</th></tr></thead><tbody className="divide-y divide-border">
-          {items.map((product) => <tr key={product.id}><td className="px-4 py-3"><div className="flex items-center gap-3"><img src={product.image} alt="" className="size-12 object-cover" /><div><p className="max-w-xs font-medium">{product.name}</p><p className="mt-1 text-xs text-muted-foreground">{product.id}</p></div></div></td><td className="px-4 py-3 text-xs">{store.categories.find((category) => category.id === product.category)?.shortName || product.category}</td><td className="px-4 py-3">{formatPrice(product.price)}</td><td className="px-4 py-3">{product.stock}</td><td className="px-4 py-3"><div className="flex gap-1">{product.featured && <StatusPill value="Featured" />}{product.bestselling && <StatusPill value="Bestseller" />}</div></td><td className="px-4 py-3"><div className="flex justify-end gap-1"><button aria-label={`Edit ${product.name}`} onClick={() => editProduct(product)} className="grid size-9 place-items-center text-muted-foreground hover:text-primary"><Icon name="edit" size={16} /></button><button aria-label={`Delete ${product.name}`} onClick={() => deleteProduct(product.id)} className="grid size-9 place-items-center text-muted-foreground hover:text-destructive"><Icon name="trash" size={16} /></button></div></td></tr>)}
+          {items.map((product) => <tr key={product.id}><td className="px-4 py-3"><div className="flex items-center gap-3"><StoreImage src={product.image} alt="" className="size-12 object-cover" /><div><p className="max-w-xs font-medium">{product.name}</p><p className="mt-1 text-xs text-muted-foreground">{product.id}</p></div></div></td><td className="px-4 py-3 text-xs">{store.categories.find((category) => category.id === product.category)?.shortName || product.category}</td><td className="px-4 py-3">{formatPrice(product.price)}</td><td className="px-4 py-3">{product.stock}</td><td className="px-4 py-3"><div className="flex gap-1">{product.featured && <StatusPill value="Featured" />}{product.bestselling && <StatusPill value="Bestseller" />}</div></td><td className="px-4 py-3"><div className="flex justify-end gap-1"><button aria-label={`Edit ${product.name}`} onClick={() => editProduct(product)} className="grid size-9 place-items-center text-muted-foreground hover:text-primary"><Icon name="edit" size={16} /></button><button aria-label={`Delete ${product.name}`} onClick={() => deleteProduct(product.id)} className="grid size-9 place-items-center text-muted-foreground hover:text-destructive"><Icon name="trash" size={16} /></button></div></td></tr>)}
           {items.length === 0 && <tr><td colSpan="6" className="px-4 py-10 text-center text-sm text-muted-foreground">No products match that search.</td></tr>}
         </tbody></table>
       </div>
@@ -264,7 +344,7 @@ function AdminCategories() {
       <label className="text-xs font-semibold sm:col-span-2">Description<textarea rows="2" value={draft.description} onChange={(event) => setDraft((current) => ({ ...current, description: event.target.value }))} className="mt-1.5 w-full border border-input bg-background px-3 py-2.5 text-sm font-normal" /></label>
       <div className="flex gap-2 sm:col-span-2"><Button type="submit">Save category</Button><Button type="button" variant="outline" onClick={() => setEditing("")}>Cancel</Button></div>
     </form>}
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{[...store.categories].sort((a, b) => a.order - b.order).map((category) => <article key={category.id} className="overflow-hidden border border-border bg-card"><img src={category.image} alt={category.name} className="h-48 w-full object-cover" /><div className="p-4"><p className="text-[10px] uppercase tracking-[0.13em] text-primary">Position {category.order}</p><h3 className="mt-1 font-display text-xl">{category.name}</h3><p className="mt-2 min-h-10 text-sm leading-5 text-muted-foreground">{category.description}</p><div className="mt-4 flex gap-2"><Button size="small" variant="outline" onClick={() => choose(category)}><Icon name="edit" size={14} />Edit</Button><Button size="small" variant="ghost" onClick={() => remove(category.id)}><Icon name="trash" size={14} />Delete</Button></div></div></article>)}</div>
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{[...store.categories].sort((a, b) => a.order - b.order).map((category) => <article key={category.id} className="overflow-hidden border border-border bg-card"><StoreImage src={category.image} alt={category.name} className="h-48 w-full object-cover" /><div className="p-4"><p className="text-[10px] uppercase tracking-[0.13em] text-primary">Position {category.order}</p><h3 className="mt-1 font-display text-xl">{category.name}</h3><p className="mt-2 min-h-10 text-sm leading-5 text-muted-foreground">{category.description}</p><div className="mt-4 flex gap-2"><Button size="small" variant="outline" onClick={() => choose(category)}><Icon name="edit" size={14} />Edit</Button><Button size="small" variant="ghost" onClick={() => remove(category.id)}><Icon name="trash" size={14} />Delete</Button></div></div></article>)}</div>
   </>;
 }
 
@@ -299,7 +379,7 @@ function AdminBanner() {
     <AdminHeading eyebrow="Homepage" title="Banner & announcement" description="Update the homepage message, imagery, headline, and calls to action. Changes appear immediately on the storefront." />
     <div className="grid gap-6 xl:grid-cols-[1fr_0.72fr]">
       <section className="border border-border bg-card p-5"><div className="grid gap-4">{field("Announcement bar message", "announcement")}{field("Eyebrow", "eyebrow")}{field("Hero heading", "heading")}{field("Hero subtitle", "subtitle", true)}{field("Hero image URL", "image")}<div className="grid gap-4 sm:grid-cols-2">{field("Primary button text", "ctaText")}{field("Primary button link", "ctaLink")}{field("Secondary button text", "secondaryText")}{field("Secondary button link", "secondaryLink")}</div></div></section>
-      <section className="border border-border bg-card p-4"><p className="mb-3 text-xs font-semibold uppercase tracking-[0.13em] text-muted-foreground">Live preview</p><div className="relative min-h-72 overflow-hidden bg-charcoal"><img src={store.banner.image} alt="Banner preview" className="absolute inset-0 size-full object-cover" /><div className="hero-overlay absolute inset-0" /><div className="relative z-10 flex min-h-72 flex-col justify-end p-6 text-primary-foreground"><p className="text-[10px] uppercase tracking-[0.16em] text-antique-gold">{store.banner.eyebrow}</p><h3 className="mt-2 max-w-sm font-display text-3xl">{store.banner.heading}</h3><p className="mt-2 max-w-sm text-xs leading-5">{store.banner.subtitle}</p></div></div></section>
+      <section className="border border-border bg-card p-4"><p className="mb-3 text-xs font-semibold uppercase tracking-[0.13em] text-muted-foreground">Live preview</p><div className="relative min-h-72 overflow-hidden bg-charcoal"><StoreImage src={store.banner.image} alt="Banner preview" className="absolute inset-0 size-full object-cover" /><div className="hero-overlay absolute inset-0" /><div className="relative z-10 flex min-h-72 flex-col justify-end p-6 text-primary-foreground"><p className="text-[10px] uppercase tracking-[0.16em] text-antique-gold">{store.banner.eyebrow}</p><h3 className="mt-2 max-w-sm font-display text-3xl">{store.banner.heading}</h3><p className="mt-2 max-w-sm text-xs leading-5">{store.banner.subtitle}</p></div></div></section>
     </div>
   </>;
 }
@@ -307,29 +387,31 @@ function AdminBanner() {
 function AdminGalleryManager() {
   const { store, updateStore } = useRudra();
   const blank = () => ({ id: "", title: "", tag: "", image: RUDRA_IMAGES.shivajiBust });
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState("");
   const [draft, setDraft] = useState(blank);
 
   function save(event) {
     event.preventDefault();
-    const id = draft.id || `gallery-${draft.title.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}`;
+    const isNew = editing === "new" || !editing;
+    const baseSlug = draft.title.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || String(Date.now());
+    const id = isNew ? `gallery-${baseSlug}-${String(Date.now()).slice(-4)}` : editing;
     const entry = { ...draft, id };
     updateStore((current) => ({
       ...current,
-      gallery: editing
-        ? current.gallery.map((item) => (item.id === id ? entry : item))
-        : [entry, ...current.gallery],
+      gallery: isNew
+        ? [entry, ...current.gallery]
+        : current.gallery.map((item) => (item.id === editing ? entry : item)),
     }));
     setDraft(blank());
-    setEditing(false);
+    setEditing("");
   }
 
   function remove(id) {
     if (!window.confirm("Remove this gallery item?")) return;
     updateStore((current) => ({ ...current, gallery: current.gallery.filter((item) => item.id !== id) }));
-    if (draft.id === id) {
+    if (editing === id) {
       setDraft(blank());
-      setEditing(false);
+      setEditing("");
     }
   }
 
@@ -340,22 +422,22 @@ function AdminGalleryManager() {
           <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-primary">Storefront imagery</p>
           <h3 className="mt-1 font-display text-xl">Heritage gallery</h3>
         </div>
-        <Button onClick={() => { setDraft(blank()); setEditing(true); }}><Icon name="plus" size={15} />Add gallery item</Button>
+        <Button onClick={() => { setDraft(blank()); setEditing("new"); }}><Icon name="plus" size={15} />Add gallery item</Button>
       </div>
       {editing && (
         <form onSubmit={save} className="mt-5 grid gap-4 border-y border-border py-5 sm:grid-cols-2">
           <label className="text-xs font-semibold">Title<input required value={draft.title} onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))} className="mt-1.5 w-full border border-input bg-background px-3 py-2.5 text-sm font-normal" /></label>
           <label className="text-xs font-semibold">Category label<input required value={draft.tag} onChange={(event) => setDraft((current) => ({ ...current, tag: event.target.value }))} className="mt-1.5 w-full border border-input bg-background px-3 py-2.5 text-sm font-normal" /></label>
           <label className="text-xs font-semibold sm:col-span-2">Image URL<input required value={draft.image} onChange={(event) => setDraft((current) => ({ ...current, image: event.target.value }))} className="mt-1.5 w-full border border-input bg-background px-3 py-2.5 text-sm font-normal" /></label>
-          <div className="flex gap-2 sm:col-span-2"><Button type="submit">Save gallery item</Button><Button type="button" variant="outline" onClick={() => { setDraft(blank()); setEditing(false); }}>Cancel</Button></div>
+          <div className="flex gap-2 sm:col-span-2"><Button type="submit">Save gallery item</Button><Button type="button" variant="outline" onClick={() => { setDraft(blank()); setEditing(""); }}>Cancel</Button></div>
         </form>
       )}
       <div className="mt-4 divide-y divide-border">
         {store.gallery.map((item) => (
           <article key={item.id} className="grid gap-3 py-4 sm:grid-cols-[88px_minmax(0,1fr)_auto] sm:items-center">
-            <img src={item.image} alt="" className="aspect-square w-20 object-cover" />
+            <StoreImage src={item.image} alt="" className="aspect-square w-20 object-cover" />
             <div className="min-w-0"><h4 className="font-display text-lg">{item.title}</h4><p className="mt-1 text-xs text-muted-foreground">{item.tag}</p></div>
-            <div className="flex gap-1"><button type="button" aria-label={`Edit ${item.title}`} onClick={() => { setDraft({ ...item }); setEditing(true); }} className="grid size-9 place-items-center text-muted-foreground hover:text-primary"><Icon name="edit" size={16} /></button><button type="button" aria-label={`Delete ${item.title}`} onClick={() => remove(item.id)} className="grid size-9 place-items-center text-muted-foreground hover:text-destructive"><Icon name="trash" size={16} /></button></div>
+            <div className="flex gap-1"><button type="button" aria-label={`Edit ${item.title}`} onClick={() => { setDraft({ ...item }); setEditing(item.id); }} className="grid size-9 place-items-center text-muted-foreground hover:text-primary"><Icon name="edit" size={16} /></button><button type="button" aria-label={`Delete ${item.title}`} onClick={() => remove(item.id)} className="grid size-9 place-items-center text-muted-foreground hover:text-destructive"><Icon name="trash" size={16} /></button></div>
           </article>
         ))}
         {store.gallery.length === 0 && <p className="py-5 text-sm text-muted-foreground">Add imagery to show the work of the atelier.</p>}
@@ -411,7 +493,7 @@ function AdminInquiries() {
 function AdminSettings() {
   const { store, updateStore } = useRudra();
   const fields = [
-    ["businessName", "Business name"], ["owner", "Business owner"], ["phone", "Phone"], ["email", "Email"], ["address", "Address"], ["website", "Website URL"], ["instagram", "Instagram link"], ["facebook", "Facebook link"], ["businessHours", "Business hours"], ["footerDescription", "Footer description"], ["copyright", "Copyright text"],
+    ["businessName", "Business name"], ["owner", "Business owner"], ["phone", "Phone"], ["whatsapp", "WhatsApp number (with country code)"], ["email", "Email"], ["address", "Address"], ["website", "Website URL"], ["instagram", "Instagram link"], ["facebook", "Facebook link"], ["businessHours", "Business hours"], ["footerDescription", "Footer description"], ["copyright", "Copyright text"],
   ];
   function update(key, value) { updateStore((current) => ({ ...current, settings: { ...current.settings, [key]: value } })); }
   return <>
@@ -445,7 +527,17 @@ export function AdminArea() {
     else if (path === "/admin" && adminAuthenticated) navigate("/admin/dashboard");
   }, [path, adminAuthenticated, navigate, ready]);
 
-  if (!ready || path === "/admin/login" || !adminAuthenticated) return <AdminLogin />;
+  if (!ready) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-sand px-4">
+        <div className="border border-border bg-card px-8 py-6 text-center shadow-product">
+          <p className="font-display text-lg text-foreground">Restoring studio session…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (path === "/admin/login" || !adminAuthenticated) return <AdminLogin />;
   const [activeLabel, Page] = ADMIN_COMPONENTS[path] || ADMIN_COMPONENTS["/admin/dashboard"];
   return (
     <div className="min-h-screen bg-background text-foreground lg:flex">

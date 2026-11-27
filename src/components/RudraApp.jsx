@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { AdminArea } from "@/components/AdminArea.jsx";
-import { Button, Icon, formatPrice } from "@/components/StoreUI.jsx";
+import { Button, Icon, StoreImage, formatPrice } from "@/components/StoreUI.jsx";
 import { useRudra } from "@/context/RudraContext.jsx";
 import { RUDRA_IMAGES } from "@/data/mock-data.js";
 
@@ -33,10 +33,15 @@ function InternalLink({ to, className = "", children, ...props }) {
 
 function SectionHeading({ eyebrow, title, copy, light = false }) {
   return (
-    <div className={`mb-8 max-w-2xl ${light ? "text-primary-foreground" : "text-foreground"}`}>
-      {eyebrow && <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-primary">{eyebrow}</p>}
-      <h2 className="font-display text-3xl leading-tight sm:text-4xl">{title}</h2>
-      {copy && <p className={`mt-4 max-w-xl text-sm leading-7 ${light ? "text-primary-foreground/75" : "text-muted-foreground"}`}>{copy}</p>}
+    <div className={`mb-9 max-w-2xl ${light ? "text-primary-foreground" : "text-foreground"}`}>
+      {eyebrow && (
+        <p className={`mb-3 flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] ${light ? "text-antique-gold" : "text-primary"}`}>
+          <span className="h-px w-6 bg-antique-gold" aria-hidden="true" />
+          {eyebrow}
+        </p>
+      )}
+      <h2 className="font-display text-3xl leading-[1.15] sm:text-4xl">{title}</h2>
+      {copy && <p className={`mt-4 max-w-xl text-sm leading-7 ${light ? "text-primary-foreground/78" : "text-muted-foreground"}`}>{copy}</p>}
     </div>
   );
 }
@@ -65,54 +70,54 @@ function StoreHeader() {
 
   return (
     <>
-      <div className="bg-primary px-4 py-2 text-center text-[10px] font-medium uppercase tracking-[0.14em] text-primary-foreground sm:text-xs">
+      <div className="border-b border-antique-gold/30 bg-primary px-4 py-2 text-center text-[10px] font-medium uppercase tracking-[0.16em] text-primary-foreground sm:text-xs">
         {store.banner.announcement}
       </div>
-      <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-md">
-        <div className="mx-auto flex min-h-[76px] max-w-[1440px] items-center justify-between gap-3 px-4 sm:px-7 lg:px-10">
-          <InternalLink to="/" className="flex min-w-0 items-center gap-3" aria-label="Rudra Arts And Handicrafts home">
-            <span className="grid size-11 shrink-0 place-items-center border border-antique-gold text-primary sm:size-12"><Icon name="crest" size={27} /></span>
+      <header className="sticky top-0 z-40 border-b border-border/80 bg-background/92 shadow-[0_1px_16px_rgba(36,32,29,0.06)] backdrop-blur-md transition-shadow duration-300">
+        <div className="mx-auto flex min-h-[78px] max-w-[1440px] items-center justify-between gap-3 px-4 sm:px-7 lg:px-10">
+          <InternalLink to="/" className="group flex min-w-0 items-center gap-2.5 sm:gap-3" aria-label="Rudra Arts And Handicrafts home">
+            <span className="grid size-10 shrink-0 place-items-center border border-antique-gold/80 bg-card/70 text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground sm:size-12"><Icon name="crest" size={25} /></span>
             <span className="min-w-0">
               <span className="block truncate font-display text-base leading-tight sm:text-lg">Rudra Arts</span>
-              <span className="mt-1 block truncate text-[9px] font-medium uppercase tracking-[0.16em] text-muted-foreground sm:text-[10px]">And Handicrafts</span>
+              <span className="mt-1 block truncate text-[8.5px] font-medium uppercase tracking-[0.09em] text-muted-foreground sm:text-[10px] sm:tracking-[0.18em]">And Handicrafts</span>
             </span>
           </InternalLink>
 
-          <nav className="hidden items-center gap-5 xl:flex" aria-label="Main navigation">
+          <nav className="hidden items-center gap-6 xl:flex" aria-label="Main navigation">
             {NAV_ITEMS.map(([to, label]) => (
               <InternalLink
                 key={to}
                 to={to}
-                className={`border-b py-2 text-[12px] font-medium transition-colors ${path === to ? "border-primary text-primary" : "border-transparent text-foreground/80 hover:border-antique-gold hover:text-primary"}`}
+                className={`border-b-2 py-2 text-[12.5px] font-medium tracking-[0.02em] transition-all duration-300 ${path === to ? "border-primary text-primary" : "border-transparent text-foreground/80 hover:border-antique-gold hover:text-primary"}`}
               >
                 {label}
               </InternalLink>
             ))}
           </nav>
 
-          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-            <button type="button" title="Search products" aria-label="Search products" onClick={() => setSearchOpen((open) => !open)} className="grid size-10 place-items-center text-foreground transition hover:text-primary"><Icon name="search" /></button>
-            <InternalLink to="/wishlist" title="Wishlist" aria-label={`Wishlist, ${wishlist.length} items`} className="relative grid size-10 place-items-center text-foreground transition hover:text-primary"><Icon name="heart" />{wishlist.length > 0 && <span className="absolute right-0 top-0 grid size-[17px] place-items-center rounded-full bg-primary text-[9px] text-primary-foreground">{wishlist.length}</span>}</InternalLink>
-            <InternalLink to="/cart" title="Shopping cart" aria-label={`Shopping cart, ${cartCount} items`} className="relative grid size-10 place-items-center text-foreground transition hover:text-primary"><Icon name="cart" />{cartCount > 0 && <span className="absolute right-0 top-0 grid size-[17px] place-items-center rounded-full bg-primary text-[9px] text-primary-foreground">{cartCount}</span>}</InternalLink>
-            <InternalLink to={customer ? "/account" : "/account/login"} title={customer ? "Your account" : "Customer sign in"} aria-label={customer ? "Your account" : "Customer sign in"} className="hidden size-10 place-items-center text-foreground transition hover:text-primary sm:grid"><Icon name="users" /></InternalLink>
-            <button type="button" aria-label={mobileMenuOpen ? "Close navigation" : "Open navigation"} aria-expanded={mobileMenuOpen} onClick={() => setMobileMenuOpen((open) => !open)} className="grid size-10 place-items-center text-foreground xl:hidden"><Icon name={mobileMenuOpen ? "close" : "menu"} /></button>
+          <div className="flex shrink-0 items-center gap-0.5 sm:gap-2">
+            <button type="button" title="Search products" aria-label="Search products" onClick={() => setSearchOpen((open) => !open)} className="grid size-10 place-items-center rounded-sm text-foreground transition-colors duration-300 hover:bg-sand/50 hover:text-primary"><Icon name="search" /></button>
+            <InternalLink to="/wishlist" title="Wishlist" aria-label={`Wishlist, ${wishlist.length} items`} className="relative grid size-10 place-items-center rounded-sm text-foreground transition-colors duration-300 hover:bg-sand/50 hover:text-primary"><Icon name="heart" />{wishlist.length > 0 && <span className="absolute right-0.5 top-0.5 grid size-[17px] place-items-center rounded-full bg-primary text-[9px] font-semibold tabular-nums text-primary-foreground">{wishlist.length}</span>}</InternalLink>
+            <InternalLink to="/cart" title="Shopping cart" aria-label={`Shopping cart, ${cartCount} items`} className="relative grid size-10 place-items-center rounded-sm text-foreground transition-colors duration-300 hover:bg-sand/50 hover:text-primary"><Icon name="cart" />{cartCount > 0 && <span className="absolute right-0.5 top-0.5 grid size-[17px] place-items-center rounded-full bg-primary text-[9px] font-semibold tabular-nums text-primary-foreground">{cartCount}</span>}</InternalLink>
+            <InternalLink to={customer ? "/account" : "/account/login"} title={customer ? "Your account" : "Customer sign in"} aria-label={customer ? "Your account" : "Customer sign in"} className="hidden size-10 place-items-center rounded-sm text-foreground transition-colors duration-300 hover:bg-sand/50 hover:text-primary sm:grid"><Icon name="users" /></InternalLink>
+            <button type="button" aria-label={mobileMenuOpen ? "Close navigation" : "Open navigation"} aria-expanded={mobileMenuOpen} onClick={() => setMobileMenuOpen((open) => !open)} className="grid size-10 place-items-center rounded-sm text-foreground transition-colors hover:bg-sand/50 xl:hidden"><Icon name={mobileMenuOpen ? "close" : "menu"} /></button>
           </div>
         </div>
 
         {searchOpen && (
-          <form onSubmit={submitSearch} className="border-t border-border bg-background px-4 py-4 sm:px-7 lg:px-10">
+          <form onSubmit={submitSearch} className="animate-drawer-in border-t border-border bg-background px-4 py-4 sm:px-7 lg:px-10">
             <div className="mx-auto flex max-w-[1440px] items-center gap-3">
               <Icon name="search" className="text-muted-foreground" />
-              <input autoFocus aria-label="Search the collection" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search statues, replicas, and heritage art" className="min-h-11 min-w-0 flex-1 border-b border-input bg-transparent px-1 text-sm outline-none focus:border-primary" />
+              <input autoFocus aria-label="Search the collection" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search statues, replicas, and heritage art" className="min-h-11 min-w-0 flex-1 border-b border-input bg-transparent px-1 text-sm outline-none transition-colors focus:border-primary" />
               <Button type="submit" size="small">Search</Button>
             </div>
           </form>
         )}
 
         {mobileMenuOpen && (
-          <nav className="border-t border-border bg-background px-4 py-2 xl:hidden" aria-label="Mobile navigation">
+          <nav className="animate-drawer-in border-t border-border bg-background px-4 py-2 xl:hidden" aria-label="Mobile navigation">
             {NAV_ITEMS.map(([to, label]) => (
-              <InternalLink key={to} to={to} className={`flex min-h-11 items-center border-b border-border text-sm ${path === to ? "font-semibold text-primary" : "text-foreground"}`}>{label}</InternalLink>
+              <InternalLink key={to} to={to} className={`flex min-h-11 items-center border-b border-border text-sm transition-colors ${path === to ? "font-semibold text-primary" : "text-foreground"}`}>{label}</InternalLink>
             ))}
             <InternalLink to={customer ? "/account" : "/account/login"} className="flex min-h-11 items-center text-sm text-foreground">{customer ? "My account" : "Customer sign in"}</InternalLink>
           </nav>
@@ -123,30 +128,41 @@ function StoreHeader() {
 }
 
 function ProductCard({ product }) {
-  const { store, navigate, addToCart, wishlist, toggleWishlist, setQuickProduct } = useRudra();
+  const { store, navigate, addToCart, buyNow, wishlist, toggleWishlist, setQuickProduct } = useRudra();
   const category = store.categories.find((item) => item.id === product.category);
   const onSale = Number(product.originalPrice) > Number(product.price);
   const discount = onSale ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
   const wished = wishlist.includes(product.id);
 
   return (
-    <article className="group min-w-0">
+    <article className="heritage-card group flex min-w-0 flex-col border border-border/80 bg-card p-3 shadow-product">
       <div className="relative aspect-square overflow-hidden bg-muted image-lift">
-        <button type="button" aria-label={`View ${product.name}`} onClick={() => navigate(`/product/${product.id}`)} className="absolute inset-0 z-[1] size-full"><img src={product.image} alt={product.name} loading="lazy" className="size-full object-cover" /></button>
-        {onSale && <span className="absolute left-3 top-3 z-[2] bg-primary px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary-foreground">{discount}% off</span>}
-        <button type="button" aria-label={wished ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`} aria-pressed={wished} onClick={() => toggleWishlist(product.id)} className={`absolute right-3 top-3 z-[3] grid size-9 place-items-center border border-border bg-background/95 transition ${wished ? "text-primary" : "text-foreground hover:text-primary"}`}><Icon name="heart" size={17} /></button>
-        <button type="button" aria-label={`Quick view ${product.name}`} onClick={() => setQuickProduct(product)} className="absolute bottom-3 left-3 right-3 z-[2] min-h-10 bg-background/95 px-3 text-xs font-semibold text-foreground opacity-100 transition-all sm:translate-y-2 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100 focus:translate-y-0 focus:opacity-100">Quick view</button>
+        <button type="button" aria-label={`View ${product.name}`} onClick={() => navigate(`/product/${product.id}`)} className="absolute inset-0 z-[1] size-full"><StoreImage src={product.image} alt={product.name} loading="lazy" className="size-full object-cover" /></button>
+        {onSale && <span className="absolute left-2.5 top-2.5 z-[2] border border-antique-gold/50 bg-primary px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary-foreground">{discount}% off</span>}
+        <button type="button" aria-label={wished ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`} aria-pressed={wished} onClick={() => toggleWishlist(product.id)} className={`absolute right-2.5 top-2.5 z-[3] grid size-9 place-items-center rounded-full border border-border/80 bg-background/95 backdrop-blur-xs transition-all duration-300 ${wished ? "border-primary/40 text-primary" : "text-foreground hover:border-antique-gold hover:text-primary"}`}><Icon name="heart" size={16} /></button>
+        <button type="button" aria-label={`Quick view ${product.name}`} onClick={() => setQuickProduct(product)} className="absolute bottom-2 left-2 right-2 z-[2] min-h-8 border border-border/80 bg-background/90 px-2.5 text-[10px] font-semibold uppercase tracking-[0.09em] text-foreground backdrop-blur-xs opacity-100 transition-all duration-300 sm:bottom-2.5 sm:left-2.5 sm:right-2.5 sm:min-h-9 sm:translate-y-2 sm:text-[11px] sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100 focus:translate-y-0 focus:opacity-100 hover:border-antique-gold hover:text-primary">Quick view</button>
       </div>
-      <div className="pt-3">
-        <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">{category?.shortName || category?.name || "Heritage art"}</p>
-        <InternalLink to={`/product/${product.id}`} className="mt-1 block min-h-11 font-display text-base leading-5 text-foreground transition-colors hover:text-primary">{product.name}</InternalLink>
-        <div className="mt-2 flex min-h-6 items-center gap-2">
+      <div className="flex flex-1 flex-col pt-3.5">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-primary/80">{category?.shortName || category?.name || "Heritage art"}</p>
+        <InternalLink to={`/product/${product.id}`} className="mt-1.5 block min-h-11 font-display text-base leading-snug text-foreground transition-colors duration-300 hover:text-primary">{product.name}</InternalLink>
+        <div className="mt-2 flex min-h-6 items-baseline gap-2 tabular-nums">
           <span className="text-sm font-semibold text-foreground">{product.price > 0 ? formatPrice(product.price) : "Price on request"}</span>
           {onSale && <span className="text-xs text-muted-foreground line-through">{formatPrice(product.originalPrice)}</span>}
         </div>
-        <Button size="small" variant="outline" className="mt-3 w-full" onClick={() => product.price > 0 ? addToCart(product) : navigate("/contact?type=custom")}>
-          <Icon name={product.price > 0 ? "bag" : "message"} size={15} />{product.price > 0 ? "Add to cart" : "Request details"}
-        </Button>
+        {product.price > 0 ? (
+          <div className="mt-3.5 grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <Button size="small" variant="outline" className="w-full" onClick={() => addToCart(product)}>
+              <Icon name="bag" size={14} />Add to cart
+            </Button>
+            <Button size="small" variant="primary" className="w-full" onClick={() => buyNow(product)}>
+              Buy now
+            </Button>
+          </div>
+        ) : (
+          <Button size="small" variant="outline" className="mt-3.5 w-full" onClick={() => navigate("/contact?type=custom")}>
+            <Icon name="message" size={14} />Request details
+          </Button>
+        )}
       </div>
     </article>
   );
@@ -169,7 +185,7 @@ function CollectionsSection({ compact = false }) {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {(compact ? categories.slice(0, 3) : categories).map((category, index) => (
           <button key={category.id} type="button" onClick={() => navigate(`/shop?category=${encodeURIComponent(category.id)}`)} className={`group relative min-h-[240px] overflow-hidden text-left sm:min-h-[290px] ${index === 0 && !compact ? "lg:row-span-2 lg:min-h-[604px]" : ""}`}>
-            <img src={category.image} alt={category.name} loading="lazy" className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            <StoreImage src={category.image} alt={category.name} loading="lazy" className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-105" />
             <span className="absolute inset-0 bg-gradient-to-t from-charcoal/90 via-charcoal/25 to-transparent" />
             <span className="absolute inset-x-0 bottom-0 p-5 text-left sm:p-6">
               <span className="mb-2 block text-[10px] font-semibold uppercase tracking-[0.16em] text-antique-gold">Collection {String(index + 1).padStart(2, "0")}</span>
@@ -190,7 +206,7 @@ function StorySection({ compact = false }) {
     <section className="bg-sand/50">
       <div className="mx-auto grid max-w-[1440px] items-center gap-9 px-4 py-14 sm:px-7 sm:py-20 lg:grid-cols-[1fr_0.95fr] lg:gap-16 lg:px-10">
         <div className="relative min-h-[300px] overflow-hidden sm:min-h-[430px]">
-          <img src={RUDRA_IMAGES.artisanCraft} alt="An artisan finishing a handcrafted Maratha sculpture" loading="lazy" className="absolute inset-0 size-full object-cover" />
+          <StoreImage src={RUDRA_IMAGES.artisanCraft} alt="An artisan finishing a handcrafted Maratha sculpture" loading="lazy" className="absolute inset-0 size-full object-cover" />
           <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-5 text-primary-foreground sm:p-7"><span className="font-display text-2xl">Made with reverence</span><span className="grid size-12 place-items-center border border-antique-gold"><Icon name="spark" size={22} className="text-antique-gold" /></span></div>
         </div>
         <div className="max-w-xl">
@@ -210,12 +226,14 @@ function CraftsmanshipSection() {
   return (
     <section className="mx-auto max-w-[1440px] px-4 py-14 sm:px-7 sm:py-20 lg:px-10">
       <SectionHeading eyebrow="The Rudra standard" title="Craft with meaning" copy="Heritage-led design, patient hands, and considered finishes come together in every piece." />
-      <div className="grid gap-0 border-y border-border sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {store.homepage.craftFeatures.map((feature, index) => (
-          <div key={`${feature}-${index}`} className="border-b border-border py-6 sm:px-5 sm:py-8 lg:border-b-0 lg:border-r lg:first:pl-0 lg:last:border-r-0">
-            <Icon name={icons[index % icons.length]} size={24} className="text-antique-gold" />
-            <h3 className="mt-4 font-display text-xl">{feature}</h3>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">A lasting expression of care, balance, and respect for the story behind the work.</p>
+          <div key={`${feature}-${index}`} className="heritage-card border border-border/80 bg-card p-6 shadow-product">
+            <span className="grid size-11 place-items-center border border-antique-gold/55 bg-sand/45 text-primary">
+              <Icon name={icons[index % icons.length]} size={21} />
+            </span>
+            <h3 className="mt-5 font-display text-xl">{feature}</h3>
+            <p className="mt-2.5 text-sm leading-6 text-muted-foreground">A lasting expression of care, balance, and respect for the story behind the work.</p>
           </div>
         ))}
       </div>
@@ -236,7 +254,7 @@ function GallerySection({ compact = false }) {
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {entries.map((item, index) => (
             <button key={item.id} type="button" onClick={() => navigate("/gallery")} className={`group relative aspect-[4/3] overflow-hidden text-left ${index === 0 && !compact ? "sm:row-span-2 sm:aspect-auto" : ""}`}>
-              <img src={item.image} alt={item.title} loading="lazy" className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <StoreImage src={item.image} alt={item.title} loading="lazy" className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <span className="absolute inset-0 bg-gradient-to-t from-charcoal/85 via-transparent to-transparent" />
               <span className="absolute inset-x-0 bottom-0 p-5"><span className="block text-[10px] uppercase tracking-[0.15em] text-antique-gold">{item.tag}</span><span className="mt-2 block font-display text-xl">{item.title}</span></span>
             </button>
@@ -257,7 +275,7 @@ function CustomOrderSection() {
           <h2 className="font-display text-3xl leading-tight sm:text-4xl">Bring your heritage vision to life</h2>
           <p className="mt-4 max-w-xl text-sm leading-7 text-primary-foreground/80">From personalized sculptures to large-scale heritage installations, we create meaningful handcrafted pieces tailored to your space.</p>
         </div>
-        <Button variant="outline" className="shrink-0 border-antique-gold text-primary-foreground hover:bg-antique-gold hover:text-charcoal" onClick={() => setInquiryOpen(true)}>Request a custom order <Icon name="arrow" size={16} /></Button>
+        <Button variant="outlineGold" className="shrink-0" onClick={() => setInquiryOpen(true)}>Request a custom order <Icon name="arrow" size={16} /></Button>
         <span className="sr-only">{store.settings.businessName}</span>
       </div>
     </section>
@@ -270,12 +288,14 @@ function TestimonialsSection() {
   return (
     <section className="mx-auto max-w-[1440px] px-4 py-14 sm:px-7 sm:py-20 lg:px-10">
       <SectionHeading eyebrow="In their homes and collections" title="Stories from our customers" copy="Thoughtful pieces, made to be passed on and remembered." />
-      <div className="grid gap-5 md:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-3">
         {reviews.map((review) => (
-          <figure key={review.id} className="border-t border-antique-gold pt-5">
-            <div aria-label={`${review.rating} out of 5 stars`} className="flex gap-1 text-antique-gold">{Array.from({ length: review.rating }, (_, index) => <Icon key={index} name="star" size={14} />)}</div>
-            <blockquote className="mt-4 font-display text-lg leading-7 text-foreground">“{review.text}”</blockquote>
-            <figcaption className="mt-5 text-xs font-semibold uppercase tracking-[0.1em] text-foreground">{review.name}<span className="mt-1 block font-normal normal-case tracking-normal text-muted-foreground">{review.product}</span></figcaption>
+          <figure key={review.id} className="heritage-card flex flex-col justify-between border border-border/80 border-t-2 border-t-antique-gold bg-card p-6 shadow-product sm:p-7">
+            <div>
+              <div aria-label={`${review.rating} out of 5 stars`} className="flex gap-1 text-antique-gold">{Array.from({ length: review.rating }, (_, index) => <Icon key={index} name="star" size={14} />)}</div>
+              <blockquote className="mt-4 font-display text-lg leading-7 text-foreground">“{review.text}”</blockquote>
+            </div>
+            <figcaption className="mt-6 border-t border-border/70 pt-4 text-xs font-semibold uppercase tracking-[0.12em] text-foreground">{review.name}<span className="mt-1 block font-normal normal-case tracking-normal text-muted-foreground">{review.product}</span></figcaption>
           </figure>
         ))}
         {reviews.length === 0 && <p className="text-sm text-muted-foreground">Customer stories will be shared here soon.</p>}
@@ -286,17 +306,50 @@ function TestimonialsSection() {
 
 function NewsletterSection() {
   const { store } = useRudra();
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    const trimmed = email.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    setError("");
+    setSubscribed(true);
+  }
+
   return (
     <section className="border-y border-border bg-sand/50">
       <div className="mx-auto flex max-w-[1440px] flex-col gap-6 px-4 py-12 sm:px-7 lg:flex-row lg:items-center lg:justify-between lg:px-10">
-        <div><p className="text-xs font-semibold uppercase tracking-[0.15em] text-primary">Notes from the atelier</p><h2 className="mt-2 font-display text-2xl">{store.homepage.newsletterHeading || "Stay connected with our heritage"}</h2><p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">{store.homepage.newsletterText || "Hear about new work, heritage stories, and thoughtful pieces from our Kolhapur studio."}</p></div>
-        <form className="flex w-full max-w-lg flex-col gap-2 sm:flex-row" onSubmit={(event) => { event.preventDefault(); setSubscribed(true); }}>
-          <label className="sr-only" htmlFor="newsletter-email">Email address</label>
-          <input required type="email" id="newsletter-email" placeholder="Your email address" className="min-h-12 min-w-0 flex-1 border border-input bg-background px-4 text-sm outline-none focus:border-primary" disabled={subscribed} />
-          <Button type="submit" disabled={subscribed}>{subscribed ? "You're on the list" : "Subscribe"}</Button>
-        </form>
-        {subscribed && <p role="status" className="mt-3 text-sm text-primary">Thank you for subscribing. We’ll be in touch with notes from the atelier.</p>}
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-primary">Notes from the atelier</p>
+          <h2 className="mt-2 font-display text-2xl">{store.homepage.newsletterHeading || "Stay connected with our heritage"}</h2>
+          <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">{store.homepage.newsletterText || "Hear about new work, heritage stories, and thoughtful pieces from our Kolhapur studio."}</p>
+        </div>
+        <div className="w-full max-w-lg">
+          <form noValidate className="flex flex-col gap-2 sm:flex-row" onSubmit={handleSubmit}>
+            <label className="sr-only" htmlFor="newsletter-email">Email address</label>
+            <input
+              required
+              type="email"
+              id="newsletter-email"
+              value={email}
+              onChange={(event) => {
+                setEmail(event.target.value);
+                if (error) setError("");
+              }}
+              placeholder="Your email address"
+              className="min-h-12 min-w-0 flex-1 border border-input bg-background px-4 text-sm outline-none focus:border-primary"
+              disabled={subscribed}
+            />
+            <Button type="submit" disabled={subscribed}>{subscribed ? "You're on the list" : "Subscribe"}</Button>
+          </form>
+          {error && <p role="alert" className="mt-2 text-xs text-destructive">{error}</p>}
+          {subscribed && <p role="status" className="mt-2 text-sm text-primary">Thank you for subscribing. We’ll be in touch with notes from the atelier.</p>}
+        </div>
       </div>
     </section>
   );
@@ -320,19 +373,20 @@ function HomePage() {
   return (
     <>
       <section className="relative isolate min-h-[590px] overflow-hidden bg-charcoal text-primary-foreground sm:min-h-[680px] lg:min-h-[720px]">
-        <img src={store.banner.image} alt="Antique-finish Maratha heritage sculpture in a traditional setting" className="absolute inset-0 size-full object-cover object-center" fetchPriority="high" />
+        <StoreImage src={store.banner.image} alt="Antique-finish Maratha heritage sculpture in a traditional setting" className="absolute inset-0 size-full object-cover object-center transition-transform duration-1000" fetchPriority="high" />
         <div className="hero-overlay absolute inset-0" />
         <div className="hero-vignette absolute inset-0" />
+        <div className="pointer-events-none absolute inset-4 hidden border border-antique-gold/25 sm:block lg:inset-6" aria-hidden="true" />
         <div className="relative mx-auto flex min-h-[590px] max-w-[1440px] items-center px-4 py-16 sm:min-h-[680px] sm:px-7 lg:min-h-[720px] lg:px-10">
-          <div className="max-w-2xl py-10">
-            <p className="mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-antique-gold">{store.banner.eyebrow}</p>
+          <div className="animate-fade-up max-w-2xl py-10">
+            <p className="mb-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.22em] text-antique-gold"><span className="h-px w-8 bg-antique-gold/80" aria-hidden="true" />{store.banner.eyebrow}</p>
             <h1 className="max-w-2xl font-display text-4xl leading-[1.08] sm:text-6xl">{store.banner.heading}</h1>
-            <p className="mt-6 max-w-xl text-sm leading-7 text-primary-foreground/85 sm:text-base sm:leading-8">{store.banner.subtitle}</p>
+            <p className="mt-6 max-w-xl text-sm leading-7 text-primary-foreground/88 sm:text-base sm:leading-8">{store.banner.subtitle}</p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button onClick={() => navigate(store.banner.ctaLink || "/shop")}>{store.banner.ctaText || "Explore Collection"}<Icon name="arrow" size={16} /></Button>
-              <Button variant="outline" className="border-primary-foreground/70 text-primary-foreground hover:bg-primary-foreground hover:text-charcoal" onClick={() => navigate(store.banner.secondaryLink || "/about")}>{store.banner.secondaryText || "Discover Our Craft"}</Button>
+              <Button variant="gold" onClick={() => navigate(store.banner.ctaLink || "/shop")}>{store.banner.ctaText || "Explore Collection"}<Icon name="arrow" size={16} /></Button>
+              <Button variant="outlineLight" onClick={() => navigate(store.banner.secondaryLink || "/about")}>{store.banner.secondaryText || "Discover Our Craft"}</Button>
             </div>
-            <p className="mt-12 flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.15em] text-primary-foreground/70"><span className="h-px w-10 bg-antique-gold" />Kolhapur, Maharashtra · Crafted with reverence</p>
+            <p className="mt-12 flex flex-wrap items-center gap-3 text-[10px] font-medium uppercase tracking-[0.16em] text-primary-foreground/75"><span className="h-px w-10 bg-antique-gold" />Kolhapur, Maharashtra · Handcrafted Legacy · Custom Commissions</p>
           </div>
         </div>
       </section>
@@ -373,12 +427,12 @@ function ShopPage() {
   const [sort, setSort] = useState("popular");
   const [saleOnly, setSaleOnly] = useState(false);
   const [limit, setLimit] = useState(8);
-  const [maxPrice, setMaxPrice] = useState("50000");
+  const [maxPrice, setMaxPrice] = useState("all");
   const matchingProducts = useMemo(() => {
     let result = store.products.filter((product) => {
       const categoryMatch = category === "all" || product.category === category;
       const searchMatch = `${product.name} ${product.description} ${product.category}`.toLowerCase().includes(search.trim().toLowerCase());
-      const priceMatch = Number(product.price) <= Number(maxPrice || 0) || Number(product.price) === 0;
+      const priceMatch = maxPrice === "all" || Number(product.price) <= Number(maxPrice) || Number(product.price) === 0;
       const saleMatch = !saleOnly || Number(product.originalPrice) > Number(product.price);
       return categoryMatch && searchMatch && priceMatch && saleMatch;
     });
@@ -395,20 +449,20 @@ function ShopPage() {
       <main className="mx-auto max-w-[1440px] px-4 py-10 sm:px-7 sm:py-14 lg:px-10">
         <div className="mb-8 grid gap-3 border-b border-border pb-6 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_0.8fr_0.9fr_auto]">
           <label className="block text-xs font-semibold text-muted-foreground">Search
-            <span className="mt-1 flex min-h-11 items-center gap-2 border border-input bg-background px-3"><Icon name="search" size={16} /><input aria-label="Search products" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search the collection" className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none" /></span>
+            <span className="mt-1 flex min-h-11 items-center gap-2 border border-input bg-background px-3"><Icon name="search" size={16} /><input aria-label="Search products" value={search} onChange={(event) => { setSearch(event.target.value); setLimit(8); }} placeholder="Search the collection" className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none" /></span>
           </label>
           <label className="block text-xs font-semibold text-muted-foreground">Collection
-            <select aria-label="Filter by collection" value={category} onChange={(event) => setCategory(event.target.value)} className="mt-1 min-h-11 w-full border border-input bg-background px-3 text-sm text-foreground"><option value="all">All collections</option>{store.categories.map((item) => <option key={item.id} value={item.id}>{item.shortName || item.name}</option>)}</select>
+            <select aria-label="Filter by collection" value={category} onChange={(event) => { setCategory(event.target.value); setLimit(8); }} className="mt-1 min-h-11 w-full border border-input bg-background px-3 text-sm text-foreground"><option value="all">All collections</option>{store.categories.map((item) => <option key={item.id} value={item.id}>{item.shortName || item.name}</option>)}</select>
           </label>
           <label className="block text-xs font-semibold text-muted-foreground">Maximum price
-            <select aria-label="Maximum price" value={maxPrice} onChange={(event) => setMaxPrice(event.target.value)} className="mt-1 min-h-11 w-full border border-input bg-background px-3 text-sm text-foreground"><option value="50000">Any price</option><option value="10000">Under ₹10,000</option><option value="15000">Under ₹15,000</option><option value="25000">Under ₹25,000</option></select>
+            <select aria-label="Maximum price" value={maxPrice} onChange={(event) => { setMaxPrice(event.target.value); setLimit(8); }} className="mt-1 min-h-11 w-full border border-input bg-background px-3 text-sm text-foreground"><option value="all">Any price</option><option value="10000">Under ₹10,000</option><option value="15000">Under ₹15,000</option><option value="25000">Under ₹25,000</option><option value="50000">Under ₹50,000</option></select>
           </label>
           <label className="block text-xs font-semibold text-muted-foreground">Sort by
             <select aria-label="Sort products" value={sort} onChange={(event) => setSort(event.target.value)} className="mt-1 min-h-11 w-full border border-input bg-background px-3 text-sm text-foreground"><option value="popular">Popularity</option><option value="newest">Newest</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option></select>
           </label>
-          <label className="flex min-h-11 items-end gap-2 pb-3 text-xs font-medium text-foreground"><input type="checkbox" checked={saleOnly} onChange={(event) => setSaleOnly(event.target.checked)} className="size-4 accent-primary" />On sale</label>
+          <label className="flex min-h-11 items-end gap-2 pb-3 text-xs font-medium text-foreground"><input type="checkbox" checked={saleOnly} onChange={(event) => { setSaleOnly(event.target.checked); setLimit(8); }} className="size-4 accent-primary" />On sale</label>
         </div>
-        <div className="mb-5 flex items-center justify-between gap-3"><p className="text-sm text-muted-foreground">{matchingProducts.length} pieces</p><button type="button" onClick={() => { setSearch(""); setCategory("all"); setSort("popular"); setSaleOnly(false); setMaxPrice("50000"); }} className="text-xs font-semibold text-primary hover:underline">Clear filters</button></div>
+        <div className="mb-5 flex items-center justify-between gap-3"><p className="text-sm text-muted-foreground">{matchingProducts.length} pieces</p><button type="button" onClick={() => { setSearch(""); setCategory("all"); setSort("popular"); setSaleOnly(false); setMaxPrice("all"); setLimit(8); }} className="text-xs font-semibold text-primary hover:underline">Clear filters</button></div>
         <ProductGrid products={matchingProducts.slice(0, limit)} />
         {matchingProducts.length > limit && <div className="mt-10 text-center"><Button variant="outline" onClick={() => setLimit((current) => current + 8)}>Load more</Button></div>}
       </main>
@@ -422,7 +476,7 @@ function GalleryPage() {
     <>
       <PageBanner eyebrow="From our studio" title="Heritage gallery" copy="A closer look at sculptures, historical replicas, traditional artwork, and custom heritage decor." />
       <main className="mx-auto max-w-[1440px] px-4 py-10 sm:px-7 sm:py-14 lg:px-10">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{store.gallery.map((item, index) => <figure key={item.id} className={`group ${index === 0 ? "lg:row-span-2" : ""}`}><div className={`overflow-hidden bg-muted ${index === 0 ? "aspect-[4/5]" : "aspect-[4/3]"}`}><img src={item.image} alt={item.title} loading="lazy" className="size-full object-cover transition-transform duration-700 group-hover:scale-105" /></div><figcaption className="flex items-start justify-between gap-4 border-b border-border py-4"><span className="font-display text-lg">{item.title}</span><span className="pt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">{item.tag}</span></figcaption></figure>)}</div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{store.gallery.map((item, index) => <figure key={item.id} className={`group ${index === 0 ? "lg:row-span-2" : ""}`}><div className={`overflow-hidden bg-muted ${index === 0 ? "aspect-[4/5]" : "aspect-[4/3]"}`}><StoreImage src={item.image} alt={item.title} loading="lazy" className="size-full object-cover transition-transform duration-700 group-hover:scale-105" /></div><figcaption className="flex items-start justify-between gap-4 border-b border-border py-4"><span className="font-display text-lg">{item.title}</span><span className="pt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">{item.tag}</span></figcaption></figure>)}</div>
       </main>
     </>
   );
@@ -445,23 +499,39 @@ function AboutPage() {
   );
 }
 
-function InquiryForm({ subject = "General enquiry", onClose }) {
+function InquiryForm({ subject = "General enquiry", showTypeTabs = false, onClose }) {
   const { addInquiry } = useRudra();
+  const [selectedSubject, setSelectedSubject] = useState(subject);
   const [sent, setSent] = useState(false);
+  const inquiryTypes = ["General enquiry", "Custom heritage order", "Product enquiry"];
   function submit(event) {
     event.preventDefault();
     const fields = Object.fromEntries(new FormData(event.currentTarget).entries());
-    addInquiry({ ...fields, subject: fields.subject || subject });
+    addInquiry({ ...fields, subject: fields.subject || selectedSubject });
     setSent(true);
     event.currentTarget.reset();
   }
-  if (sent) return <div role="status" className="border border-antique-gold bg-sand/50 p-6"><p className="font-display text-2xl">Thank you for reaching out.</p><p className="mt-2 text-sm leading-6 text-muted-foreground">Our Kolhapur studio has received your message and will be in touch.</p>{onClose && <Button variant="outline" className="mt-5" onClick={onClose}>Close</Button>}</div>;
+  if (sent) return <div role="status" className="border border-antique-gold bg-sand/50 p-6"><p className="font-display text-2xl">Thank you for reaching out.</p><p className="mt-2 text-sm leading-6 text-muted-foreground">Our Kolhapur studio has received your message and will be in touch.</p><div className="mt-5 flex flex-wrap gap-2"><Button variant="outline" onClick={() => setSent(false)}>Send another message</Button>{onClose && <Button variant="ghost" onClick={onClose}>Close</Button>}</div></div>;
   return (
     <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2">
+      {showTypeTabs && (
+        <div className="flex flex-wrap gap-2 sm:col-span-2" role="group" aria-label="Inquiry type">
+          {inquiryTypes.map((type) => (
+            <button
+              key={type}
+              type="button"
+              onClick={() => setSelectedSubject(type)}
+              className={`border px-3 py-1.5 text-xs font-semibold transition-colors ${selectedSubject === type ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background text-foreground hover:border-antique-gold"}`}
+            >
+              {type}
+            </button>
+          ))}
+        </div>
+      )}
       <label className="text-xs font-semibold">Your name<input required name="name" autoComplete="name" className="mt-1.5 min-h-11 w-full border border-input bg-background px-3 text-sm font-normal" /></label>
       <label className="text-xs font-semibold">Email address<input required type="email" name="email" autoComplete="email" className="mt-1.5 min-h-11 w-full border border-input bg-background px-3 text-sm font-normal" /></label>
       <label className="text-xs font-semibold">Phone number<input required type="tel" name="phone" autoComplete="tel" className="mt-1.5 min-h-11 w-full border border-input bg-background px-3 text-sm font-normal" /></label>
-      <label className="text-xs font-semibold">Subject<input required name="subject" defaultValue={subject} className="mt-1.5 min-h-11 w-full border border-input bg-background px-3 text-sm font-normal" /></label>
+      <label className="text-xs font-semibold">Subject<input required name="subject" value={selectedSubject} onChange={(event) => setSelectedSubject(event.target.value)} className="mt-1.5 min-h-11 w-full border border-input bg-background px-3 text-sm font-normal" /></label>
       <label className="text-xs font-semibold sm:col-span-2">How can we help?<textarea required name="message" rows="4" className="mt-1.5 w-full border border-input bg-background px-3 py-3 text-sm font-normal" /></label>
       <div className="sm:col-span-2"><Button type="submit">Send enquiry <Icon name="arrow" size={16} /></Button></div>
     </form>
@@ -470,7 +540,7 @@ function InquiryForm({ subject = "General enquiry", onClose }) {
 
 function ContactPage() {
   const { store, urlSearch } = useRudra();
-  const subject = urlSearch.type === "custom" ? "Custom heritage order" : "General enquiry";
+  const subject = urlSearch.type === "custom" ? "Custom heritage order" : urlSearch.type === "product" ? "Product enquiry" : "General enquiry";
   return (
     <>
       <PageBanner eyebrow="Talk with our studio" title="Contact Rudra Arts" copy="Whether you have a question about a piece or a vision for a custom creation, our team would be glad to hear from you." />
@@ -480,14 +550,14 @@ function ContactPage() {
           <div className="space-y-4 border-y border-border py-5"><a href={`tel:${store.settings.phone}`} className="flex items-center gap-3 text-sm hover:text-primary"><Icon name="phone" size={17} className="text-antique-gold" />{store.settings.phone}</a><a href={`mailto:${store.settings.email}`} className="flex items-center gap-3 text-sm hover:text-primary"><Icon name="mail" size={17} className="text-antique-gold" />{store.settings.email}</a><p className="flex items-start gap-3 text-sm leading-6 text-muted-foreground"><Icon name="clock" size={17} className="mt-0.5 shrink-0 text-antique-gold" />{store.settings.businessHours}</p></div>
           <div className="bg-sand/50 p-5"><p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">Custom heritage work</p><p className="mt-2 text-sm leading-6 text-muted-foreground">Share your space, scale, and inspiration. We will help shape a piece made for your setting.</p></div>
         </aside>
-        <section className="border border-border bg-card p-5 sm:p-8"><p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-primary">Send us a message</p><h2 className="mb-6 font-display text-2xl">Start a conversation</h2><InquiryForm subject={subject} /></section>
+        <section className="border border-border bg-card p-5 sm:p-8"><p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-primary">Send us a message</p><h2 className="mb-6 font-display text-2xl">Start a conversation</h2><InquiryForm key={subject} subject={subject} showTypeTabs /></section>
       </main>
     </>
   );
 }
 
 function ProductDetailPage({ product }) {
-  const { store, addToCart, toggleWishlist, wishlist, navigate } = useRudra();
+  const { store, addToCart, buyNow, toggleWishlist, wishlist, navigate } = useRudra();
   const [image, setImage] = useState(product?.image || "");
   const [quantity, setQuantity] = useState(1);
   if (!product) return <EmptyState title="This piece is not available" actionLabel="Return to shop" action={() => navigate("/shop")} />;
@@ -500,16 +570,25 @@ function ProductDetailPage({ product }) {
         <p className="mb-7 text-xs text-muted-foreground"><InternalLink to="/shop" className="hover:text-primary">Shop</InternalLink><span className="px-2">/</span>{product.name}</p>
         <div className="grid gap-8 lg:grid-cols-2 lg:gap-14">
           <div className="grid gap-3 sm:grid-cols-[76px_1fr]">
-            <div className="order-2 flex gap-2 overflow-auto sm:order-1 sm:flex-col">{images.map((src, index) => <button key={`${src}-${index}`} type="button" onClick={() => setImage(src)} aria-label={`View product image ${index + 1}`} className={`size-[68px] shrink-0 overflow-hidden border ${image === src ? "border-primary" : "border-border"}`}><img src={src} alt="" className="size-full object-cover" /></button>)}</div>
-            <div className="order-1 aspect-square overflow-hidden bg-muted sm:order-2"><img src={image || product.image} alt={product.name} className="size-full object-cover" /></div>
+            <div className="order-2 flex gap-2 overflow-auto sm:order-1 sm:flex-col">{images.map((src, index) => <button key={`${src}-${index}`} type="button" onClick={() => setImage(src)} aria-label={`View product image ${index + 1}`} className={`size-[68px] shrink-0 overflow-hidden border transition-all duration-300 ${image === src ? "border-primary ring-1 ring-antique-gold/60" : "border-border hover:border-antique-gold"}`}><StoreImage src={src} alt="" className="size-full object-cover" /></button>)}</div>
+            <div className="order-1 aspect-square overflow-hidden border border-border/80 bg-muted shadow-product sm:order-2"><StoreImage src={image || product.image} alt={product.name} className="size-full object-cover" /></div>
           </div>
           <div className="py-2">
             <p className="text-xs font-semibold uppercase tracking-[0.15em] text-primary">{store.categories.find((item) => item.id === product.category)?.name || "Heritage collection"}</p>
             <h1 className="mt-3 font-display text-3xl leading-tight sm:text-4xl">{product.name}</h1>
-            <div className="mt-5 flex flex-wrap items-center gap-3"><span className="text-xl font-semibold">{product.price > 0 ? formatPrice(product.price) : "Price on request"}</span>{onSale && <><span className="text-sm text-muted-foreground line-through">{formatPrice(product.originalPrice)}</span><span className="bg-primary/10 px-2 py-1 text-xs font-semibold text-primary">Save {Math.round((1 - product.price / product.originalPrice) * 100)}%</span></>}</div>
+            <div className="mt-5 flex flex-wrap items-center gap-3 tabular-nums"><span className="text-xl font-semibold">{product.price > 0 ? formatPrice(product.price) : "Price on request"}</span>{onSale && <><span className="text-sm text-muted-foreground line-through">{formatPrice(product.originalPrice)}</span><span className="bg-primary/10 px-2 py-1 text-xs font-semibold text-primary">Save {Math.round((1 - product.price / product.originalPrice) * 100)}%</span></>}</div>
             <p className="mt-5 text-sm leading-7 text-muted-foreground">{product.description}</p>
             <p className="mt-5 text-xs text-muted-foreground">{product.stock > 0 ? `${product.stock} available` : "Made to order — enquire for availability"}</p>
-            {product.price > 0 ? <div className="mt-6 flex flex-wrap gap-3"><div className="flex min-h-11 items-center border border-input"><button type="button" aria-label="Decrease quantity" onClick={() => setQuantity((current) => Math.max(1, current - 1))} className="grid size-10 place-items-center text-foreground hover:text-primary">−</button><span className="min-w-8 text-center text-sm" aria-live="polite">{quantity}</span><button type="button" aria-label="Increase quantity" onClick={() => setQuantity((current) => Math.min(Number(product.stock) || 99, current + 1))} className="grid size-10 place-items-center text-foreground hover:text-primary">+</button></div><Button onClick={() => addToCart(product, quantity)}><Icon name="bag" size={16} />Add to cart</Button><Button variant="outline" aria-label={wishlist.includes(product.id) ? "Remove from wishlist" : "Add to wishlist"} aria-pressed={wishlist.includes(product.id)} onClick={() => toggleWishlist(product.id)}><Icon name="heart" /></Button></div> : <Button className="mt-6" onClick={() => navigate("/contact?type=custom")}>Request a custom quote <Icon name="arrow" size={16} /></Button>}
+            {product.price > 0 ? (
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <div className="flex min-h-11 items-center border border-input bg-card"><button type="button" aria-label="Decrease quantity" onClick={() => setQuantity((current) => Math.max(1, current - 1))} className="grid size-10 place-items-center text-foreground transition-colors hover:text-primary">−</button><span className="min-w-8 text-center text-sm tabular-nums" aria-live="polite">{quantity}</span><button type="button" aria-label="Increase quantity" onClick={() => setQuantity((current) => Math.min(Number(product.stock) || 99, current + 1))} className="grid size-10 place-items-center text-foreground transition-colors hover:text-primary">+</button></div>
+                <Button variant="primary" onClick={() => buyNow(product, quantity)}>Buy now <Icon name="arrow" size={16} /></Button>
+                <Button variant="outline" onClick={() => addToCart(product, quantity)}><Icon name="bag" size={16} />Add to cart</Button>
+                <Button variant="outline" aria-label={wishlist.includes(product.id) ? "Remove from wishlist" : "Add to wishlist"} aria-pressed={wishlist.includes(product.id)} onClick={() => toggleWishlist(product.id)}><Icon name="heart" /></Button>
+              </div>
+            ) : (
+              <Button className="mt-6" onClick={() => navigate("/contact?type=custom")}>Request a custom quote <Icon name="arrow" size={16} /></Button>
+            )}
             <div className="mt-8 border-t border-border pt-5"><h2 className="font-display text-xl">Piece details</h2><dl className="mt-4 grid grid-cols-[110px_1fr] gap-x-4 gap-y-3 text-sm"><dt className="text-muted-foreground">Material</dt><dd>{product.material || "Made to brief"}</dd><dt className="text-muted-foreground">Dimensions</dt><dd>{product.dimensions || "Made to order"}</dd><dt className="text-muted-foreground">Weight</dt><dd>{product.weight || "Varies by piece"}</dd><dt className="text-muted-foreground">Details</dt><dd>{product.specifications || "Hand-finished by our artisans."}</dd></dl></div>
           </div>
         </div>
@@ -532,7 +611,7 @@ function CartPage() {
     <>
       <PageBanner eyebrow="Your selection" title="Shopping cart" copy="Review your chosen pieces before continuing to checkout." />
       <main className="mx-auto grid max-w-[1440px] gap-8 px-4 py-10 sm:px-7 lg:grid-cols-[1fr_360px] lg:px-10">
-        <section className="divide-y divide-border border-y border-border">{items.map(({ product, quantity }) => <article key={product.id} className="grid grid-cols-[88px_minmax(0,1fr)] gap-4 py-5 sm:grid-cols-[120px_minmax(0,1fr)_auto] sm:items-center"><img src={product.image} alt={product.name} className="aspect-square w-full object-cover" /><div className="min-w-0"><InternalLink to={`/product/${product.id}`} className="font-display text-lg leading-6 hover:text-primary">{product.name}</InternalLink><p className="mt-2 text-sm font-semibold">{formatPrice(product.price)}</p><div className="mt-3 inline-flex min-h-9 items-center border border-input"><button type="button" aria-label={`Decrease ${product.name} quantity`} onClick={() => setCartQuantity(product.id, quantity - 1)} className="grid size-9 place-items-center">−</button><span className="min-w-8 text-center text-xs">{quantity}</span><button type="button" aria-label={`Increase ${product.name} quantity`} onClick={() => setCartQuantity(product.id, quantity + 1)} className="grid size-9 place-items-center">+</button></div><button type="button" onClick={() => setCartQuantity(product.id, 0)} className="ml-3 text-xs text-muted-foreground underline hover:text-primary">Remove</button></div><p className="col-span-2 text-right text-sm font-semibold sm:col-span-1">{formatPrice(product.price * quantity)}</p></article>)}</section>
+        <section className="divide-y divide-border border-y border-border">{items.map(({ product, quantity }) => <article key={product.id} className="grid grid-cols-[88px_minmax(0,1fr)] gap-4 py-5 sm:grid-cols-[120px_minmax(0,1fr)_auto] sm:items-center"><StoreImage src={product.image} alt={product.name} className="aspect-square w-full object-cover" /><div className="min-w-0"><InternalLink to={`/product/${product.id}`} className="font-display text-lg leading-6 hover:text-primary">{product.name}</InternalLink><p className="mt-2 text-sm font-semibold">{formatPrice(product.price)}</p><div className="mt-3 inline-flex min-h-9 items-center border border-input"><button type="button" aria-label={`Decrease ${product.name} quantity`} onClick={() => setCartQuantity(product.id, quantity - 1)} className="grid size-9 place-items-center">−</button><span className="min-w-8 text-center text-xs">{quantity}</span><button type="button" aria-label={`Increase ${product.name} quantity`} onClick={() => setCartQuantity(product.id, quantity + 1)} className="grid size-9 place-items-center">+</button></div><button type="button" onClick={() => setCartQuantity(product.id, 0)} className="ml-3 text-xs text-muted-foreground underline hover:text-primary">Remove</button></div><p className="col-span-2 text-right text-sm font-semibold sm:col-span-1">{formatPrice(product.price * quantity)}</p></article>)}</section>
         <aside className="h-fit border border-border bg-card p-5 sm:p-6"><h2 className="font-display text-2xl">Order summary</h2><div className="mt-5 space-y-3 border-b border-border pb-5 text-sm"><div className="flex justify-between gap-4"><span className="text-muted-foreground">Subtotal</span><span>{formatPrice(subtotal)}</span></div><div className="flex justify-between gap-4"><span className="text-muted-foreground">Delivery</span><span className="text-right">Quoted before dispatch</span></div></div><div className="mt-5 flex justify-between gap-4 font-semibold"><span>Estimated total</span><span>{formatPrice(subtotal)}</span></div><p className="mt-3 text-xs leading-5 text-muted-foreground">Delivery charges are confirmed with you before dispatch. No payment is collected in this demo.</p><Button className="mt-6 w-full" onClick={() => navigate("/checkout")}>Continue to checkout <Icon name="arrow" size={16} /></Button><Button variant="outline" className="mt-2 w-full" onClick={() => navigate("/shop")}>Continue shopping</Button></aside>
       </main>
     </>
@@ -637,15 +716,49 @@ function AccountPage() {
   return <><PageBanner eyebrow="Your account" title={`Welcome, ${customer.name}`} copy="Your order history and saved pieces, together in one place." /><main className="mx-auto grid max-w-[1440px] gap-8 px-4 py-10 sm:px-7 lg:grid-cols-[0.7fr_1.3fr] lg:px-10"><aside className="border border-border bg-card p-5"><h2 className="font-display text-xl">Profile details</h2><p className="mt-4 text-sm leading-6">{customer.name}<br /><span className="text-muted-foreground">{customer.email}<br />{customer.phone || "Phone not added"}</span></p><div className="mt-5 border-t border-border pt-4"><p className="text-xs text-muted-foreground">Saved pieces</p><p className="mt-1 font-display text-2xl">{wishlist.length}</p></div><button type="button" onClick={() => { setCustomer(null); navigate("/"); }} className="mt-5 text-xs font-semibold text-primary underline">Sign out</button></aside><section><div className="flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">Your history</p><h2 className="mt-2 font-display text-2xl">Orders</h2></div><InternalLink to="/wishlist" className="text-sm font-semibold text-primary">View wishlist ({wishlist.length})</InternalLink></div><div className="mt-4 divide-y divide-border border-y border-border">{orders.map((order) => <article key={order.id} className="flex flex-wrap items-center justify-between gap-3 py-4"><div><p className="text-sm font-semibold">{order.id}</p><p className="mt-1 text-xs text-muted-foreground">{order.date} · {order.status}</p></div><p className="text-sm font-semibold">{formatPrice(order.total)}</p></article>)}{orders.length === 0 && <p className="py-8 text-sm text-muted-foreground">Your orders will appear here after checkout.</p>}</div></section></main></>;
 }
 
+function buildContactLinks(settings = {}) {
+  const phoneRaw = String(settings.phone || "8400456555").trim();
+  const phoneDigits = phoneRaw.replace(/\D/g, "");
+  const whatsappSource = String(settings.whatsapp || phoneDigits || "918400456555").replace(/\D/g, "");
+  const whatsappDigits = whatsappSource.length === 10 ? `91${whatsappSource}` : whatsappSource;
+  const instagramUrl = String(settings.instagram || "").trim() || "https://www.instagram.com/";
+  const facebookUrl = String(settings.facebook || "").trim();
+  const whatsappUrl = `https://wa.me/${whatsappDigits}?text=${encodeURIComponent("Namaskar! I would like to enquire about Rudra Arts And Handicrafts creations.")}`;
+  const telUrl = `tel:${phoneDigits.length === 10 ? `+91${phoneDigits}` : phoneRaw}`;
+  return { phoneRaw, instagramUrl, facebookUrl, whatsappUrl, telUrl };
+}
+
 function StoreFooter() {
   const { store, navigate } = useRudra();
   const links = [["/shop", "Shop all"], ["/collections", "Collections"], ["/gallery", "Heritage gallery"], ["/about", "Our story"], ["/contact", "Contact us"]];
+  const categories = [...store.categories].sort((a, b) => Number(a.order) - Number(b.order)).slice(0, 6);
+  const { phoneRaw, instagramUrl, facebookUrl, whatsappUrl, telUrl } = buildContactLinks(store.settings);
   return (
     <footer className="bg-charcoal text-primary-foreground">
-      <div className="mx-auto grid max-w-[1440px] gap-9 px-4 py-12 sm:px-7 sm:py-14 md:grid-cols-2 lg:grid-cols-[1.25fr_0.75fr_1fr] lg:px-10">
-        <div><InternalLink to="/" className="inline-flex items-center gap-3"><span className="grid size-11 place-items-center border border-antique-gold text-antique-gold"><Icon name="crest" size={25} /></span><span className="font-display text-xl">Rudra Arts<span className="block font-sans text-[9px] font-medium uppercase tracking-[0.16em] text-primary-foreground/65">And Handicrafts</span></span></InternalLink><p className="mt-5 max-w-sm text-sm leading-7 text-primary-foreground/70">{store.settings.footerDescription}</p><div className="mt-5 flex gap-2">{store.settings.instagram && <a href={store.settings.instagram} aria-label="Instagram" className="grid size-10 place-items-center border border-primary-foreground/20 hover:border-antique-gold hover:text-antique-gold"><Icon name="instagram" size={17} /></a>}{store.settings.facebook && <a href={store.settings.facebook} aria-label="Facebook" className="grid size-10 place-items-center border border-primary-foreground/20 hover:border-antique-gold hover:text-antique-gold"><Icon name="facebook" size={17} /></a>}</div></div>
+      <div className="mx-auto grid max-w-[1440px] gap-9 px-4 py-12 sm:px-7 sm:py-14 md:grid-cols-2 lg:grid-cols-[1.2fr_0.65fr_0.85fr_1fr] lg:px-10">
+        <div>
+          <InternalLink to="/" className="inline-flex items-center gap-3"><span className="grid size-11 place-items-center border border-antique-gold text-antique-gold"><Icon name="crest" size={25} /></span><span className="font-display text-xl">Rudra Arts<span className="block font-sans text-[9px] font-medium uppercase tracking-[0.16em] text-primary-foreground/65">And Handicrafts</span></span></InternalLink>
+          <p className="mt-5 max-w-sm text-sm leading-7 text-primary-foreground/70">{store.settings.footerDescription}</p>
+          <div className="mt-5 flex flex-wrap items-center gap-2.5">
+            <a href={instagramUrl} target="_blank" rel="noreferrer" aria-label="Instagram" title="Instagram" className="fab fab-ig !h-10 !w-10">
+              <Icon name="instagram" size={18} />
+            </a>
+            <a href={whatsappUrl} target="_blank" rel="noreferrer" aria-label="WhatsApp" title="WhatsApp" className="fab fab-wa !h-10 !w-10">
+              <Icon name="whatsapp" size={18} />
+            </a>
+            <a href={telUrl} aria-label={`Call studio at ${phoneRaw}`} title={`Call ${phoneRaw}`} className="fab fab-call !h-10 !w-10">
+              <Icon name="phoneFill" size={17} />
+            </a>
+            {facebookUrl && (
+              <a href={facebookUrl} target="_blank" rel="noreferrer" aria-label="Facebook" title="Facebook" className="fab fab-fb !h-10 !w-10">
+                <Icon name="facebook" size={18} />
+              </a>
+            )}
+          </div>
+        </div>
         <div><h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-antique-gold">Explore</h2><nav className="mt-4 grid gap-3">{links.map(([to, label]) => <InternalLink key={to} to={to} className="text-sm text-primary-foreground/75 transition hover:text-antique-gold">{label}</InternalLink>)}</nav></div>
-        <div><h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-antique-gold">Visit our studio</h2><address className="mt-4 space-y-3 not-italic text-sm leading-6 text-primary-foreground/75"><p>{store.settings.address}</p><a className="block hover:text-antique-gold" href={`tel:${store.settings.phone}`}>{store.settings.phone}</a><a className="block break-all hover:text-antique-gold" href={`mailto:${store.settings.email}`}>{store.settings.email}</a></address></div>
+        <div><h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-antique-gold">Categories</h2><nav className="mt-4 grid gap-3">{categories.map((cat) => <InternalLink key={cat.id} to={`/shop?category=${encodeURIComponent(cat.id)}`} className="text-sm text-primary-foreground/75 transition hover:text-antique-gold">{cat.shortName || cat.name}</InternalLink>)}</nav></div>
+        <div><h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-antique-gold">Visit our studio</h2><address className="mt-4 space-y-3 not-italic text-sm leading-6 text-primary-foreground/75"><p>{store.settings.address}</p><a className="block hover:text-antique-gold" href={telUrl}>{store.settings.phone}</a><a className="block break-all hover:text-antique-gold" href={`mailto:${store.settings.email}`}>{store.settings.email}</a></address></div>
       </div>
       <div className="border-t border-primary-foreground/15"><div className="mx-auto flex max-w-[1440px] flex-col gap-3 px-4 py-4 text-[10px] text-primary-foreground/55 sm:flex-row sm:items-center sm:justify-between sm:px-7 lg:px-10"><p>{store.settings.copyright}</p><button type="button" onClick={() => navigate("/admin/login")} className="w-fit text-primary-foreground/55 underline-offset-2 hover:text-antique-gold hover:underline">Admin login</button></div></div>
     </footer>
@@ -653,21 +766,105 @@ function StoreFooter() {
 }
 
 function QuickViewModal() {
-  const { quickProduct, setQuickProduct, addToCart, navigate } = useRudra();
+  const { quickProduct, setQuickProduct, addToCart, buyNow, navigate } = useRudra();
   if (!quickProduct) return null;
-  return <div className="fixed inset-0 z-[70] flex items-center justify-center bg-charcoal/70 p-4" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setQuickProduct(null); }}><section role="dialog" aria-modal="true" aria-labelledby="quick-view-title" className="relative grid max-h-[90vh] w-full max-w-3xl overflow-auto bg-background md:grid-cols-2"><button type="button" aria-label="Close quick view" onClick={() => setQuickProduct(null)} className="absolute right-3 top-3 z-10 grid size-10 place-items-center border border-border bg-background"><Icon name="close" /></button><img src={quickProduct.image} alt={quickProduct.name} className="aspect-square size-full object-cover" /><div className="flex flex-col justify-center p-6 sm:p-8"><p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">Quick view</p><h2 id="quick-view-title" className="mt-3 font-display text-2xl">{quickProduct.name}</h2><p className="mt-4 text-lg font-semibold">{quickProduct.price > 0 ? formatPrice(quickProduct.price) : "Price on request"}</p><p className="mt-4 text-sm leading-6 text-muted-foreground">{quickProduct.description}</p><Button className="mt-6" onClick={() => { if (quickProduct.price > 0) addToCart(quickProduct); else navigate("/contact?type=custom"); setQuickProduct(null); }}>{quickProduct.price > 0 ? "Add to cart" : "Request details"}</Button><Button variant="outline" className="mt-2" onClick={() => { const id = quickProduct.id; setQuickProduct(null); navigate(`/product/${id}`); }}>View details</Button></div></section></div>;
+  return (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-charcoal/75 p-4 backdrop-blur-xs" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setQuickProduct(null); }}>
+      <section role="dialog" aria-modal="true" aria-labelledby="quick-view-title" className="animate-modal-in relative grid max-h-[90vh] w-full max-w-3xl overflow-auto border border-antique-gold/40 bg-background shadow-heritage md:grid-cols-2">
+        <button type="button" aria-label="Close quick view" onClick={() => setQuickProduct(null)} className="absolute right-3 top-3 z-10 grid size-10 place-items-center border border-border bg-background/95 transition-colors hover:border-antique-gold hover:text-primary"><Icon name="close" /></button>
+        <StoreImage src={quickProduct.image} alt={quickProduct.name} className="aspect-square size-full object-cover" />
+        <div className="flex flex-col justify-center p-6 sm:p-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">Quick view</p>
+          <h2 id="quick-view-title" className="mt-3 font-display text-2xl">{quickProduct.name}</h2>
+          <p className="mt-4 text-lg font-semibold tabular-nums">{quickProduct.price > 0 ? formatPrice(quickProduct.price) : "Price on request"}</p>
+          <p className="mt-4 text-sm leading-6 text-muted-foreground">{quickProduct.description}</p>
+          {quickProduct.price > 0 ? (
+            <>
+              <Button className="mt-6" onClick={() => { const item = quickProduct; setQuickProduct(null); buyNow(item); }}>Buy now <Icon name="arrow" size={16} /></Button>
+              <Button variant="outline" className="mt-2" onClick={() => { addToCart(quickProduct); setQuickProduct(null); }}><Icon name="bag" size={15} />Add to cart</Button>
+            </>
+          ) : (
+            <Button className="mt-6" onClick={() => { setQuickProduct(null); navigate("/contact?type=custom"); }}>Request details</Button>
+          )}
+          <Button variant="ghost" className="mt-2" onClick={() => { const id = quickProduct.id; setQuickProduct(null); navigate(`/product/${id}`); }}>View full details</Button>
+        </div>
+      </section>
+    </div>
+  );
 }
 
 function InquiryModal() {
   const { inquiryOpen, setInquiryOpen } = useRudra();
   if (!inquiryOpen) return null;
-  return <div className="fixed inset-0 z-[70] flex items-center justify-center bg-charcoal/70 p-4" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setInquiryOpen(false); }}><section role="dialog" aria-modal="true" aria-labelledby="custom-inquiry-title" className="relative max-h-[90vh] w-full max-w-2xl overflow-auto bg-background p-5 sm:p-8"><button type="button" aria-label="Close custom inquiry" onClick={() => setInquiryOpen(false)} className="absolute right-3 top-3 grid size-10 place-items-center text-muted-foreground hover:text-primary"><Icon name="close" /></button><p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">Custom heritage work</p><h2 id="custom-inquiry-title" className="mb-6 mt-2 font-display text-2xl">Tell us about your vision</h2><InquiryForm subject="Custom heritage order" onClose={() => setInquiryOpen(false)} /></section></div>;
+  return <div className="fixed inset-0 z-[70] flex items-center justify-center bg-charcoal/75 p-4 backdrop-blur-xs" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setInquiryOpen(false); }}><section role="dialog" aria-modal="true" aria-labelledby="custom-inquiry-title" className="animate-modal-in relative max-h-[90vh] w-full max-w-2xl overflow-auto border border-antique-gold/40 bg-background p-5 shadow-heritage sm:p-8"><button type="button" aria-label="Close custom inquiry" onClick={() => setInquiryOpen(false)} className="absolute right-3 top-3 grid size-10 place-items-center text-muted-foreground transition-colors hover:text-primary"><Icon name="close" /></button><p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">Custom heritage work</p><h2 id="custom-inquiry-title" className="mb-6 mt-2 font-display text-2xl">Tell us about your vision</h2><InquiryForm subject="Custom heritage order" onClose={() => setInquiryOpen(false)} /></section></div>;
+}
+
+function FloatingContactDock() {
+  const { store } = useRudra();
+  const { phoneRaw, instagramUrl, whatsappUrl, telUrl } = buildContactLinks(store.settings);
+
+  const actions = [
+    {
+      label: "Instagram",
+      ariaLabel: "Follow Rudra Arts on Instagram",
+      href: instagramUrl,
+      icon: "instagram",
+      kind: "ig",
+      external: true,
+    },
+    {
+      label: "WhatsApp",
+      ariaLabel: "Chat with Rudra Arts on WhatsApp",
+      href: whatsappUrl,
+      icon: "whatsapp",
+      kind: "wa",
+      external: true,
+    },
+    {
+      label: "Call us",
+      ariaLabel: `Call Rudra Arts at ${phoneRaw}`,
+      href: telUrl,
+      icon: "phoneFill",
+      kind: "call",
+      external: false,
+    },
+  ];
+
+  return (
+    <aside aria-label="Quick contact actions" className="fab-stack">
+      {actions.map((item) => (
+        <a
+          key={item.label}
+          href={item.href}
+          aria-label={item.ariaLabel}
+          target={item.external ? "_blank" : undefined}
+          rel={item.external ? "noreferrer" : undefined}
+          className={`fab fab-${item.kind}`}
+        >
+          <span className="fab-label" aria-hidden="true">{item.label}</span>
+          <Icon name={item.icon} size={20} />
+        </a>
+      ))}
+    </aside>
+  );
+}
+
+function ToastBanner() {
+  const { toast, setToast, navigate } = useRudra();
+  if (!toast) return null;
+  return (
+    <div role="status" aria-live="polite" className="animate-fade-up fixed bottom-5 left-4 z-50 flex max-w-sm items-center gap-3 border border-antique-gold/70 bg-charcoal/95 px-4 py-3 text-xs text-primary-foreground shadow-heritage backdrop-blur-md sm:bottom-7 sm:left-6">
+      <Icon name="spark" size={16} className="shrink-0 text-antique-gold" />
+      <span className="min-w-0 flex-1 leading-5">{toast}</span>
+      <button type="button" onClick={() => { setToast(null); navigate("/cart"); }} className="shrink-0 font-semibold text-antique-gold hover:underline">View cart</button>
+      <button type="button" aria-label="Dismiss notification" onClick={() => setToast(null)} className="shrink-0 text-primary-foreground/70 hover:text-primary-foreground"><Icon name="close" size={14} /></button>
+    </div>
+  );
 }
 
 function StorefrontPage() {
-  const { path, urlSearch } = useRudra();
-  const productId = path.startsWith("/product/") ? decodeURIComponent(path.slice("/product/".length)) : "";
-  const { store } = useRudra();
+  const { path, urlSearch, store, navigate } = useRudra();
+  const productId = path.startsWith("/product/") ? decodeURIComponent(path.slice("/product/".length)).replace(/\/+$/, "") : "";
   let page;
   if (path === "/") page = <HomePage />;
   else if (path === "/shop") page = <ShopPage key={`${path}-${JSON.stringify(urlSearch)}`} />;
@@ -685,7 +882,7 @@ function StorefrontPage() {
   else if (productId) page = <ProductDetailPage key={productId} product={store.products.find((item) => item.id === productId)} />;
   else page = <EmptyState title="We couldn't find that page" actionLabel="Return home" action={() => navigate("/")} />;
 
-  return <><StoreHeader /><div className="min-h-[40vh]">{page}</div><StoreFooter /><QuickViewModal /><InquiryModal /></>;
+  return <><StoreHeader /><div className="min-h-[40vh]">{page}</div><StoreFooter /><FloatingContactDock /><ToastBanner /><QuickViewModal /><InquiryModal /></>;
 }
 
 export function RudraApp() {
