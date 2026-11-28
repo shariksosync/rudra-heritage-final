@@ -29,6 +29,11 @@ const ICONS = {
   spark: <><path d="m12 3 1.5 6.5L20 12l-6.5 1.5L12 20l-1.5-6.5L4 12l6.5-2.5L12 3Z" /><path d="m19 3 .6 2.4L22 6l-2.4.6L19 9l-.6-2.4L16 6l2.4-.6L19 3Z" /></>,
   quote: <><path d="M4 11h6v8H3v-6c0-4 2-7 6-9M14 11h6v8h-7v-6c0-4 2-7 6-9" /></>,
   chevron: <path d="m9 18 6-6-6-6" />,
+  chevronLeft: <path d="m15 18-6-6 6-6" />,
+  eye: <><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" /><circle cx="12" cy="12" r="3" /></>,
+  shield: <><path d="M12 3 4 6v6c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10V6l-8-3Z" /><path d="m9 12 2 2 4-4" /></>,
+  award: <><circle cx="12" cy="8.5" r="5" /><path d="M9 13v8l3-2 3 2v-8" /></>,
+  check: <path d="m5 12 4.5 4.5L19 7" />,
   crest: <><path d="M5 20V8l7-5 7 5v12" /><path d="M9 20v-6h6v6M3 20h18M8 9h8" /></>,
 };
 
@@ -116,23 +121,32 @@ const LOCAL_ASSET_FALLBACKS = {
   "shivaji-bust.png": "/images/shivaji-bust.jpg",
 };
 
+export function resolveAssetSrc(src) {
+  if (!src) return src;
+  const match = src.match(/\/(?:__l5e\/assets-v1\/[^/]+|images)\/([^/?#]+)$/);
+  if (match && LOCAL_ASSET_FALLBACKS[match[1]]) {
+    return LOCAL_ASSET_FALLBACKS[match[1]];
+  }
+  return src;
+}
+
 export function applyAssetFallback(event) {
   const img = event?.currentTarget;
   if (!img || img.dataset.fallbackApplied === "1") return;
   const src = img.getAttribute("src") || "";
-  const match = src.match(/\/__l5e\/assets-v1\/[^/]+\/([^/?#]+)$/);
-  const fallback = match ? LOCAL_ASSET_FALLBACKS[match[1]] : "";
-  if (fallback) {
+  const fallback = resolveAssetSrc(src);
+  if (fallback && fallback !== src) {
     img.dataset.fallbackApplied = "1";
     img.src = fallback;
   }
 }
 
 export function StoreImage({ src, alt = "", className = "", ...props }) {
+  const resolvedSrc = resolveAssetSrc(src);
   function checkBroken(img) {
     if (img && img.complete && img.naturalWidth === 0) {
       applyAssetFallback({ currentTarget: img });
     }
   }
-  return <img ref={checkBroken} src={src} alt={alt} className={className} onError={applyAssetFallback} {...props} />;
+  return <img ref={checkBroken} src={resolvedSrc} alt={alt} className={className} onError={applyAssetFallback} {...props} />;
 }

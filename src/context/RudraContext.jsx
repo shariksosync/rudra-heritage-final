@@ -17,6 +17,8 @@ export function RudraProvider({ children }) {
   const [adminAuthenticated, setAdminAuthenticated] = useState(false);
   const [lastOrder, setLastOrder] = useState(null);
   const [quickProduct, setQuickProduct] = useState(null);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [lightboxItem, setLightboxItem] = useState(null);
   const [inquiryOpen, setInquiryOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -83,6 +85,10 @@ export function RudraProvider({ children }) {
       void routerNavigate(options);
       setMobileMenuOpen(false);
       setSearchOpen(false);
+      setCartOpen(false);
+      setQuickProduct(null);
+      setLightboxItem(null);
+      setInquiryOpen(false);
       if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
     },
     [routerNavigate],
@@ -104,7 +110,10 @@ export function RudraProvider({ children }) {
         }
         return [...current, { productId: product.id, quantity }];
       });
-      if (!silent) showToast(`Added "${product.name}" to your cart`);
+      if (!silent) {
+        setCartOpen(true);
+        showToast(`Added "${product.name}" to your bag`);
+      }
     },
     [showToast],
   );
@@ -181,6 +190,10 @@ export function RudraProvider({ children }) {
       setLastOrder,
       quickProduct,
       setQuickProduct,
+      cartOpen,
+      setCartOpen,
+      lightboxItem,
+      setLightboxItem,
       inquiryOpen,
       setInquiryOpen,
       searchOpen,
@@ -208,6 +221,8 @@ export function RudraProvider({ children }) {
       adminAuthenticated,
       lastOrder,
       quickProduct,
+      cartOpen,
+      lightboxItem,
       inquiryOpen,
       searchOpen,
       mobileMenuOpen,

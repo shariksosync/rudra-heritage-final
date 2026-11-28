@@ -157,37 +157,59 @@
 
 .hero-overlay {
   background: linear-gradient(
-    96deg,
-    oklch(0.16 0.022 25 / 0.92) 0%,
-    oklch(0.23 0.078 16 / 0.74) 46%,
-    oklch(0.17 0.015 50 / 0.34) 100%
+    98deg,
+    oklch(0.14 0.025 22 / 0.94) 0%,
+    oklch(0.22 0.085 16 / 0.76) 44%,
+    oklch(0.16 0.015 48 / 0.36) 100%
   );
 }
 
 .hero-vignette {
-  background: radial-gradient(circle at 68% 45%, transparent 32%, oklch(0.14 0.015 45 / 0.62) 100%);
+  background: radial-gradient(circle at 68% 45%, transparent 30%, oklch(0.12 0.015 45 / 0.68) 100%);
+}
+
+.bg-burgundy-royal {
+  background: linear-gradient(135deg, #430f1a 0%, #5b1725 52%, #6d1c2d 100%);
+}
+
+.ornament-diamond {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.ornament-diamond::before,
+.ornament-diamond::after {
+  content: "";
+  height: 1px;
+  width: 2.25rem;
+  background: linear-gradient(90deg, transparent, var(--antique-gold));
+}
+
+.ornament-diamond::after {
+  background: linear-gradient(90deg, var(--antique-gold), transparent);
 }
 
 .image-lift img {
-  transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
 }
 
 .group:hover .image-lift img,
 .image-lift:hover img {
-  transform: scale(1.05);
+  transform: scale(1.055);
 }
 
 .shadow-heritage {
   box-shadow:
-    0 22px 48px -18px oklch(0.243 0.01 58 / 0.22),
-    0 4px 14px -4px oklch(0.243 0.01 58 / 0.08);
+    0 24px 52px -18px oklch(0.243 0.01 58 / 0.22),
+    0 4px 16px -4px oklch(0.243 0.01 58 / 0.08);
 }
 
 .shadow-product {
   box-shadow:
-    0 10px 28px -12px oklch(0.243 0.01 58 / 0.12),
-    0 2px 6px -2px oklch(0.243 0.01 58 / 0.05);
+    0 10px 28px -12px oklch(0.243 0.01 58 / 0.11),
+    0 2px 6px -2px oklch(0.243 0.01 58 / 0.04);
 }
 
 .heritage-card {
@@ -199,10 +221,36 @@
 
 .heritage-card:hover {
   transform: translateY(-4px);
-  border-color: oklch(0.735 0.102 82 / 0.75);
+  border-color: oklch(0.735 0.102 82 / 0.8);
   box-shadow:
-    0 22px 48px -18px oklch(0.243 0.01 58 / 0.2),
-    0 4px 14px -4px oklch(0.243 0.01 58 / 0.08);
+    0 24px 52px -18px oklch(0.243 0.01 58 / 0.2),
+    0 4px 16px -4px oklch(0.243 0.01 58 / 0.08);
+}
+
+@keyframes rudraSlowZoom {
+  from {
+    transform: scale(1.06);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes rudraSlideRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slow-zoom {
+  animation: rudraSlowZoom 10s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-slide-right {
+  animation: rudraSlideRight 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes rudraFadeUp {

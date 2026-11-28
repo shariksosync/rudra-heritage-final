@@ -90,16 +90,16 @@ function AdminSidebar({ active }) {
   const { setAdminAuthenticated, navigate, store } = useRudra();
   return (
     <>
-      <aside className="hidden min-h-screen w-64 shrink-0 border-r border-border bg-card lg:flex lg:flex-col">
-        <a href="/admin/dashboard" onClick={(event) => { event.preventDefault(); navigate("/admin/dashboard"); }} className="flex h-20 items-center gap-3 border-b border-border px-6">
-          <span className="grid size-10 place-items-center border border-antique-gold text-primary"><Icon name="crest" size={25} /></span>
-          <span className="font-display text-base leading-tight">Rudra Arts<span className="block font-sans text-[9px] uppercase tracking-[0.16em] text-muted-foreground">Store studio</span></span>
+      <aside className="hidden min-h-screen w-64 shrink-0 border-r border-border bg-card shadow-[4px_0_24px_rgba(36,32,29,0.03)] lg:flex lg:flex-col">
+        <a href="/admin/dashboard" onClick={(event) => { event.preventDefault(); navigate("/admin/dashboard"); }} className="flex h-20 items-center gap-3 border-b border-border/80 px-6">
+          <span className="grid size-10 place-items-center border border-antique-gold/80 bg-sand/30 text-primary"><Icon name="crest" size={24} /></span>
+          <span className="font-display text-base leading-tight">Rudra Arts<span className="block font-sans text-[9px] uppercase tracking-[0.16em] text-muted-foreground">Atelier Studio</span></span>
         </a>
         <div className="px-4 pb-2 pt-6 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Manage store</div>
         <nav className="space-y-1 px-2">
           {ADMIN_SECTIONS.map(([to, label, icon]) => (
             <AdminLink key={to} to={to} active={active === to}><Icon name={icon} size={16} />{label}
-              {label === "Inquiries" && store.inquiries.filter((inquiry) => inquiry.status === "New").length > 0 && <span className="ml-auto grid size-5 place-items-center rounded-full bg-primary text-[10px] text-primary-foreground">{store.inquiries.filter((inquiry) => inquiry.status === "New").length}</span>}
+              {label === "Inquiries" && store.inquiries.filter((inquiry) => inquiry.status === "New").length > 0 && <span className="ml-auto grid size-5 place-items-center rounded-full bg-primary text-[10px] font-semibold tabular-nums text-primary-foreground">{store.inquiries.filter((inquiry) => inquiry.status === "New").length}</span>}
             </AdminLink>
           ))}
         </nav>
@@ -148,10 +148,10 @@ function AdminHeading({ eyebrow, title, description, action }) {
 
 function StatCard({ label, value, note, icon }) {
   return (
-    <div className="border border-border bg-card p-5 shadow-product">
+    <div className="heritage-card border border-border/80 border-t-2 border-t-antique-gold bg-card p-5 shadow-product">
       <div className="flex items-start justify-between gap-4">
-        <div><p className="text-xs font-medium text-muted-foreground">{label}</p><p className="mt-3 font-display text-3xl text-foreground">{value}</p><p className="mt-2 text-xs text-muted-foreground">{note}</p></div>
-        <span className="grid size-10 place-items-center bg-sand text-primary"><Icon name={icon} size={19} /></span>
+        <div><p className="text-xs font-medium uppercase tracking-[0.06em] text-muted-foreground">{label}</p><p className="mt-3 font-display text-3xl tabular-nums text-foreground">{value}</p><p className="mt-2 text-xs text-muted-foreground">{note}</p></div>
+        <span className="grid size-11 place-items-center border border-antique-gold/45 bg-sand/50 text-primary"><Icon name={icon} size={19} /></span>
       </div>
     </div>
   );

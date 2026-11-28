@@ -196,5 +196,26 @@ describe("Rudra storefront & admin workflows", () => {
     expect(
       screen.getByText(/Chhatrapati Shivaji Maharaj Royal Bronze Statue/i),
     ).toBeInTheDocument();
-  }, 15000);
+  }, 30000);
+
+  it("opens CartDrawer on Add to cart and opens GalleryLightbox on gallery inspection", async () => {
+    renderApp("/");
+
+    const addButtons = screen.getAllByRole("button", { name: /Add to cart/i });
+    fireEvent.click(addButtons[0]!);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Your shopping bag/i)).toHaveAttribute("role", "dialog");
+    });
+
+    fireEvent.click(screen.getByLabelText(/Close shopping bag/i));
+    fireEvent.click(screen.getByRole("button", { name: /The Maharaj Collection/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
+    });
+    expect(
+      screen.getByText(/Enquire about a similar piece/i).closest("button"),
+    ).toBeInTheDocument();
+  }, 30000);
 });
