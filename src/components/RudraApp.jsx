@@ -273,24 +273,51 @@ function CollectionsSection({ compact = false }) {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {categories.map((category, index) => {
           const count = store.products.filter((item) => item.category === category.id).length;
+          const featured = index === 0;
+          const darkTone = index % 2 === 1;
+          const surfaceClass = category.image
+            ? "border border-border/70 text-primary-foreground shadow-product"
+            : featured
+              ? "bg-burgundy-royal border border-antique-gold/55 text-primary-foreground shadow-heritage"
+              : darkTone
+                ? "bg-charcoal border border-antique-gold/35 text-primary-foreground shadow-product"
+                : "bg-card border border-border/90 text-foreground shadow-product hover:border-antique-gold";
+          const eyebrowClass = category.image || featured || darkTone ? "text-antique-gold" : "text-primary";
+          const copyClass = category.image || featured || darkTone ? "text-primary-foreground/82" : "text-muted-foreground";
+          const pillClass = category.image || featured || darkTone
+            ? "border border-antique-gold/45 bg-charcoal/55 text-primary-foreground"
+            : "border border-antique-gold/55 bg-sand/50 text-foreground";
           return (
             <button
               key={category.id}
               type="button"
               onClick={() => navigate(`/shop?category=${encodeURIComponent(category.id)}`)}
-              className={`heritage-card group relative min-h-[250px] overflow-hidden border border-border/70 text-left shadow-product sm:min-h-[280px] ${index === 0 ? "lg:col-span-2 lg:row-span-2 lg:min-h-[576px]" : ""}`}
+              className={`heritage-card group relative flex min-h-[250px] flex-col justify-between overflow-hidden p-6 text-left sm:min-h-[280px] sm:p-7 ${featured ? "lg:col-span-2 lg:row-span-2 lg:min-h-[576px]" : ""} ${surfaceClass}`}
             >
-              <StoreImage src={category.image} alt={category.name} loading="lazy" className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              <span className="absolute inset-0 bg-gradient-to-t from-charcoal/95 via-charcoal/65 to-charcoal/20" />
-              <span className="pointer-events-none absolute inset-3 border border-antique-gold/25 transition-colors duration-300 group-hover:border-antique-gold/65" aria-hidden="true" />
-              <span className="absolute inset-x-0 bottom-0 p-5 text-left sm:p-6">
-                <span className="mb-2 flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-antique-gold">
-                  <span>Collection {String(index + 1).padStart(2, "0")}</span>
-                  <span className="border border-antique-gold/45 bg-charcoal/70 px-2 py-0.5 text-[9px] text-primary-foreground">{count > 0 ? `${count} ${count === 1 ? "Piece" : "Pieces"}` : "Curated"}</span>
+              {category.image && (
+                <>
+                  <StoreImage src={category.image} alt={category.name} loading="lazy" className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <span className="absolute inset-0 bg-gradient-to-t from-charcoal/95 via-charcoal/65 to-charcoal/20" />
+                </>
+              )}
+              <span className="pointer-events-none absolute inset-3 border border-antique-gold/25 transition-colors duration-300 group-hover:border-antique-gold/70" aria-hidden="true" />
+              <span className="relative z-10 flex w-full items-center justify-between gap-3">
+                <span className={`grid size-10 place-items-center border border-antique-gold/50 ${category.image || featured || darkTone ? "bg-charcoal/40 text-antique-gold" : "bg-sand/55 text-primary"}`}>
+                  <Icon name={category.icon || "award"} size={18} />
                 </span>
-                <span className="block max-w-sm font-display text-2xl leading-tight text-primary-foreground sm:text-3xl">{category.name}</span>
-                <span className="mt-2 block max-w-sm text-xs leading-5 text-primary-foreground/82">{category.description}</span>
-                <span className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-antique-gold transition-transform duration-300 group-hover:translate-x-1">Explore collection <Icon name="arrow" size={14} /></span>
+                <span className={`px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.16em] ${pillClass}`}>
+                  {count > 0 ? `${count} ${count === 1 ? "Piece" : "Pieces"}` : "Curated"}
+                </span>
+              </span>
+              <span className="relative z-10 mt-8 block">
+                <span className={`mb-2 block text-[10px] font-semibold uppercase tracking-[0.18em] ${eyebrowClass}`}>
+                  Collection {String(index + 1).padStart(2, "0")}
+                </span>
+                <span className={`block max-w-md font-display leading-tight ${featured ? "text-3xl sm:text-4xl" : "text-2xl sm:text-[26px]"}`}>{category.name}</span>
+                <span className={`mt-2.5 block max-w-md text-xs leading-6 sm:text-[13px] ${copyClass}`}>{category.description}</span>
+                <span className={`mt-5 inline-flex items-center gap-2 text-xs font-semibold transition-transform duration-300 group-hover:translate-x-1 ${eyebrowClass}`}>
+                  Explore collection <Icon name="arrow" size={14} />
+                </span>
               </span>
             </button>
           );
@@ -363,7 +390,7 @@ function GallerySection({ compact = false }) {
     <section className="bg-charcoal text-primary-foreground">
       <div className="mx-auto max-w-[1440px] px-4 py-14 sm:px-7 sm:py-20 lg:px-10">
         <div className="flex flex-wrap items-end justify-between gap-4">
-          <SectionHeading light eyebrow="The heritage gallery" title="A closer look at the craft" copy="Click any creation to inspect its texture, proportions, and heritage narrative." />
+          <SectionHeading light eyebrow="The heritage gallery" title="Atelier archive & discipline" copy="Select any folio plate to examine craft techniques, finishes, and commission guidance." />
           {compact && <InternalLink to="/gallery" className="mb-10 inline-flex items-center gap-2 text-sm font-semibold text-antique-gold transition-colors hover:text-primary-foreground">Enter the gallery <Icon name="arrow" size={16} /></InternalLink>}
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -372,14 +399,20 @@ function GallerySection({ compact = false }) {
               key={item.id}
               type="button"
               onClick={() => setLightboxItem(item)}
-              className={`group relative aspect-[4/3] overflow-hidden border border-primary-foreground/15 text-left transition-colors duration-300 hover:border-antique-gold/70 ${index === 0 && !compact ? "sm:row-span-2 sm:aspect-auto" : ""}`}
+              aria-label={`Inspect ${item.title}`}
+              className={`group flex w-full overflow-hidden border border-primary-foreground/20 bg-charcoal p-2 transition-colors duration-300 hover:border-antique-gold/75 ${index === 0 && !compact ? "min-h-[260px] lg:col-span-2 lg:row-span-2 lg:min-h-[536px]" : "aspect-[4/3]"}`}
             >
-              <StoreImage src={item.image} alt={item.title} loading="lazy" className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              <span className="absolute inset-0 bg-gradient-to-t from-charcoal/90 via-charcoal/15 to-transparent" />
-              <span className="absolute right-3 top-3 grid size-9 place-items-center rounded-full border border-antique-gold/50 bg-charcoal/70 text-antique-gold opacity-80 transition-opacity group-hover:opacity-100"><Icon name="eye" size={16} /></span>
-              <span className="absolute inset-x-0 bottom-0 p-5">
-                <span className="block text-[10px] uppercase tracking-[0.18em] text-antique-gold">{item.tag}</span>
-                <span className="mt-1.5 block font-display text-xl">{item.title}</span>
+              <span className="relative flex-1 overflow-hidden bg-charcoal">
+                {item.image ? (
+                  <StoreImage src={item.image} alt={item.title} loading="lazy" className="size-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                ) : (
+                  <span className="flex size-full flex-col justify-between p-5 text-left text-primary-foreground">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-antique-gold">
+                      Archive Folio · {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span className="font-display text-2xl">{item.title}</span>
+                  </span>
+                )}
               </span>
             </button>
           ))}
@@ -631,20 +664,28 @@ function GalleryPage() {
   const { store, setLightboxItem } = useRudra();
   return (
     <>
-      <PageBanner eyebrow="From our studio" title="Heritage gallery" copy="Select any creation to open an enlarged museum view with its craft category and commission option." />
+      <PageBanner eyebrow="From our studio" title="Heritage gallery" copy="Explore Kolhapur studio folios detailing finishes, historic materials, and commission disciplines." />
       <main className="mx-auto max-w-[1440px] px-4 py-10 sm:px-7 sm:py-14 lg:px-10">
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {store.gallery.map((item, index) => (
-            <figure key={item.id} className={`heritage-card group border border-border/80 bg-card p-3 shadow-product ${index === 0 ? "lg:row-span-2" : ""}`}>
-              <button type="button" onClick={() => setLightboxItem(item)} aria-label={`Inspect ${item.title}`} className={`relative block w-full overflow-hidden bg-muted ${index === 0 ? "aspect-[4/5]" : "aspect-[4/3]"}`}>
-                <StoreImage src={item.image} alt={item.title} loading="lazy" className="size-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                <span className="absolute right-3 top-3 grid size-9 place-items-center rounded-full border border-antique-gold/60 bg-charcoal/75 text-antique-gold opacity-0 transition-opacity duration-300 group-hover:opacity-100"><Icon name="eye" size={16} /></span>
-              </button>
-              <figcaption className="flex items-start justify-between gap-4 pt-4 pb-1">
-                <span className="font-display text-lg">{item.title}</span>
-                <span className="pt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">{item.tag}</span>
-              </figcaption>
-            </figure>
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setLightboxItem(item)}
+              aria-label={`Inspect ${item.title}`}
+              className={`heritage-card group flex w-full overflow-hidden border border-border/80 bg-card p-2.5 shadow-product ${index === 0 ? "min-h-[280px] lg:col-span-2 lg:row-span-2 lg:min-h-[420px]" : "aspect-[4/3]"}`}
+            >
+              <span className="relative flex-1 overflow-hidden bg-muted">
+                {item.image ? (
+                  <StoreImage src={item.image} alt={item.title} loading="lazy" className="size-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                ) : (
+                  <span className="flex size-full min-h-[210px] flex-col justify-between bg-charcoal p-6 text-left text-primary-foreground">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-antique-gold">Folio {String(index + 1).padStart(2, "0")}</span>
+                    <span className="font-display text-2xl">{item.title}</span>
+                  </span>
+                )}
+              </span>
+            </button>
           ))}
         </div>
       </main>
@@ -743,8 +784,9 @@ function ProductDetailPage({ product }) {
   const [image, setImage] = useState(product?.image || "");
   const [quantity, setQuantity] = useState(1);
   if (!product) return <EmptyState title="This piece is not available" actionLabel="Return to shop" action={() => navigate("/shop")} />;
-  const related = store.products.filter((item) => item.id !== product.id && item.category === product.category).slice(0, 4);
-  const images = product.images?.length ? product.images : [product.image];
+  const sameCategory = store.products.filter((item) => item.id !== product.id && item.category === product.category).slice(0, 4);
+  const related = sameCategory.length > 0 ? sameCategory : store.products.filter((item) => item.id !== product.id && item.featured).slice(0, 4);
+  const images = Array.from(new Set((product.images?.length ? product.images : [product.image]).filter(Boolean)));
   const onSale = Number(product.originalPrice) > Number(product.price);
   const { whatsappUrl } = buildContactLinks(store.settings, `Namaskar! I would like details about "${product.name}".`);
   return (
@@ -752,9 +794,9 @@ function ProductDetailPage({ product }) {
       <main className="mx-auto max-w-[1440px] px-4 py-8 sm:px-7 sm:py-12 lg:px-10">
         <p className="mb-7 text-xs text-muted-foreground"><InternalLink to="/shop" className="hover:text-primary">Shop</InternalLink><span className="px-2">/</span>{product.name}</p>
         <div className="grid gap-8 lg:grid-cols-2 lg:gap-14">
-          <div className="grid gap-3 sm:grid-cols-[76px_1fr] lg:sticky lg:top-24 lg:h-fit">
-            <div className="order-2 flex gap-2 overflow-auto sm:order-1 sm:flex-col">{images.map((src, index) => <button key={`${src}-${index}`} type="button" onClick={() => setImage(src)} aria-label={`View product image ${index + 1}`} className={`size-[68px] shrink-0 overflow-hidden border transition-all duration-300 ${image === src ? "border-primary ring-1 ring-antique-gold/60" : "border-border hover:border-antique-gold"}`}><StoreImage src={src} alt="" className="size-full object-cover" /></button>)}</div>
-            <div className="image-lift order-1 aspect-square overflow-hidden border border-border/80 bg-sand/30 shadow-heritage sm:order-2"><StoreImage src={image || product.image} alt={product.name} className="size-full object-cover" /></div>
+          <div className={`grid gap-3 lg:sticky lg:top-24 lg:h-fit ${images.length > 1 ? "sm:grid-cols-[76px_1fr]" : ""}`}>
+            {images.length > 1 && <div className="order-2 flex gap-2 overflow-auto sm:order-1 sm:flex-col">{images.map((src, index) => <button key={`${src}-${index}`} type="button" onClick={() => setImage(src)} aria-label={`View product image ${index + 1}`} className={`size-[68px] shrink-0 overflow-hidden border transition-all duration-300 ${image === src ? "border-primary ring-1 ring-antique-gold/60" : "border-border hover:border-antique-gold"}`}><StoreImage src={src} alt="" className="size-full object-cover" /></button>)}</div>}
+            <div className={`image-lift aspect-square overflow-hidden border border-border/80 bg-sand/30 shadow-heritage ${images.length > 1 ? "order-1 sm:order-2" : ""}`}><StoreImage src={image || product.image} alt={product.name} className="size-full object-cover" /></div>
           </div>
           <div className="py-2">
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -1037,7 +1079,7 @@ function buildContactLinks(settings = {}, customMessage = "Namaskar! I would lik
   const phoneDigits = phoneRaw.replace(/\D/g, "");
   const whatsappSource = String(settings.whatsapp || phoneDigits || "918400456555").replace(/\D/g, "");
   const whatsappDigits = whatsappSource.length === 10 ? `91${whatsappSource}` : whatsappSource;
-  const instagramUrl = String(settings.instagram || "").trim() || "https://www.instagram.com/";
+  const instagramUrl = String(settings.instagram || "").trim() || "https://www.instagram.com/rudra_arts.kolhapur/";
   const facebookUrl = String(settings.facebook || "").trim();
   const whatsappUrl = `https://wa.me/${whatsappDigits}?text=${encodeURIComponent(customMessage)}`;
   const telUrl = `tel:${phoneDigits.length === 10 ? `+91${phoneDigits}` : phoneRaw}`;
@@ -1170,10 +1212,26 @@ function GalleryLightbox() {
     <div className="fixed inset-0 z-[80] flex items-center justify-center bg-charcoal/90 p-4 backdrop-blur-xs" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setLightboxItem(null); }}>
       <section role="dialog" aria-modal="true" aria-labelledby="lightbox-title" className="animate-modal-in relative grid max-h-[92vh] w-full max-w-4xl overflow-auto border border-antique-gold/50 bg-charcoal text-primary-foreground shadow-heritage md:grid-cols-[1.25fr_0.75fr]">
         <button type="button" aria-label="Close gallery view" onClick={() => setLightboxItem(null)} className="absolute right-3 top-3 z-10 grid size-10 place-items-center border border-antique-gold/50 bg-charcoal/85 text-primary-foreground transition-colors hover:border-antique-gold hover:text-antique-gold"><Icon name="close" /></button>
-        <div className="relative aspect-square bg-black/40 md:aspect-auto md:min-h-[420px]">
-          <StoreImage src={lightboxItem.image} alt={lightboxItem.title} className="size-full object-cover" />
+        <div className="relative aspect-square bg-burgundy-royal md:aspect-auto md:min-h-[420px]">
+          {lightboxItem.image ? (
+            <StoreImage src={lightboxItem.image} alt={lightboxItem.title} className="size-full object-cover" />
+          ) : (
+            <div className="relative flex size-full flex-col justify-between px-14 py-8 text-primary-foreground sm:px-16 sm:py-10">
+              <span className="pointer-events-none absolute inset-4 border border-antique-gold/35" aria-hidden="true" />
+              <div className="relative z-10 flex items-center justify-between">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-antique-gold">Kolhapur Archive Plate</span>
+                <span className="grid size-10 place-items-center border border-antique-gold/55 bg-charcoal/40 text-antique-gold"><Icon name="award" size={18} /></span>
+              </div>
+              <div className="relative z-10 my-auto py-8">
+                <p className="text-xs uppercase tracking-[0.18em] text-antique-gold">{lightboxItem.tag}</p>
+                <p className="mt-3 font-display text-3xl leading-snug sm:text-4xl">{lightboxItem.title}</p>
+                {lightboxItem.medium && <p className="mt-4 border-l-2 border-antique-gold pl-4 text-sm leading-6 text-primary-foreground/85">{lightboxItem.medium}</p>}
+              </div>
+              <p className="relative z-10 text-[10px] uppercase tracking-[0.2em] text-primary-foreground/65">Rudra Arts And Handicrafts · Kolhapur</p>
+            </div>
+          )}
           {entries.length > 1 && (
-            <div className="absolute inset-x-3 top-1/2 flex -translate-y-1/2 justify-between">
+            <div className="absolute inset-x-3 top-1/2 z-20 flex -translate-y-1/2 justify-between">
               <button type="button" aria-label="Previous gallery piece" onClick={() => setLightboxItem(entries[(activeIndex - 1 + entries.length) % entries.length])} className="grid size-10 place-items-center rounded-full border border-antique-gold/60 bg-charcoal/80 text-primary-foreground hover:bg-primary"><Icon name="chevronLeft" size={18} /></button>
               <button type="button" aria-label="Next gallery piece" onClick={() => setLightboxItem(entries[(activeIndex + 1) % entries.length])} className="grid size-10 place-items-center rounded-full border border-antique-gold/60 bg-charcoal/80 text-primary-foreground hover:bg-primary"><Icon name="chevron" size={18} /></button>
             </div>

@@ -327,7 +327,7 @@ function AdminProducts() {
 function AdminCategories() {
   const { store, updateStore } = useRudra();
   const [editing, setEditing] = useState("");
-  const [draft, setDraft] = useState({ name: "", shortName: "", description: "", image: RUDRA_IMAGES.shivajiBust, order: store.categories.length + 1 });
+  const [draft, setDraft] = useState({ name: "", shortName: "", description: "", image: "", order: store.categories.length + 1 });
   function choose(category) { setEditing(category.id); setDraft({ ...category }); }
   function save(event) {
     event.preventDefault();
@@ -338,13 +338,13 @@ function AdminCategories() {
   }
   function remove(id) { if (!window.confirm("Delete this category? Products in it will keep their category label.")) return; updateStore((current) => ({ ...current, categories: current.categories.filter((item) => item.id !== id) })); }
   return <>
-    <AdminHeading eyebrow="Catalog" title="Categories" description="Keep collections organized and update the imagery used across the storefront." action={<Button onClick={() => { setEditing("new"); setDraft({ name: "", shortName: "", description: "", image: RUDRA_IMAGES.shivajiBust, order: store.categories.length + 1 }); }}><Icon name="plus" size={16} />Add category</Button>} />
+    <AdminHeading eyebrow="Catalog" title="Categories" description="Keep collections organized and update the imagery used across the storefront." action={<Button onClick={() => { setEditing("new"); setDraft({ name: "", shortName: "", description: "", image: "", order: store.categories.length + 1 }); }}><Icon name="plus" size={16} />Add category</Button>} />
     {editing && <form onSubmit={save} className="mb-6 grid gap-4 border border-antique-gold bg-card p-5 sm:grid-cols-2"><h3 className="font-display text-xl sm:col-span-2">{editing === "new" ? "New category" : "Edit category"}</h3>
-      {["name", "shortName", "image", "order"].map((field) => <label key={field} className="text-xs font-semibold capitalize">{field === "image" ? "Image URL" : field}<input required={field === "name"} type={field === "order" ? "number" : "text"} value={draft[field] ?? ""} onChange={(event) => setDraft((current) => ({ ...current, [field]: event.target.value }))} className="mt-1.5 w-full border border-input bg-background px-3 py-2.5 text-sm font-normal" /></label>)}
+      {["name", "shortName", "image", "order"].map((field) => <label key={field} className="text-xs font-semibold capitalize">{field === "image" ? "Image URL (optional)" : field}<input required={field === "name"} type={field === "order" ? "number" : "text"} value={draft[field] ?? ""} onChange={(event) => setDraft((current) => ({ ...current, [field]: event.target.value }))} className="mt-1.5 w-full border border-input bg-background px-3 py-2.5 text-sm font-normal" /></label>)}
       <label className="text-xs font-semibold sm:col-span-2">Description<textarea rows="2" value={draft.description} onChange={(event) => setDraft((current) => ({ ...current, description: event.target.value }))} className="mt-1.5 w-full border border-input bg-background px-3 py-2.5 text-sm font-normal" /></label>
       <div className="flex gap-2 sm:col-span-2"><Button type="submit">Save category</Button><Button type="button" variant="outline" onClick={() => setEditing("")}>Cancel</Button></div>
     </form>}
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{[...store.categories].sort((a, b) => a.order - b.order).map((category) => <article key={category.id} className="overflow-hidden border border-border bg-card"><StoreImage src={category.image} alt={category.name} className="h-48 w-full object-cover" /><div className="p-4"><p className="text-[10px] uppercase tracking-[0.13em] text-primary">Position {category.order}</p><h3 className="mt-1 font-display text-xl">{category.name}</h3><p className="mt-2 min-h-10 text-sm leading-5 text-muted-foreground">{category.description}</p><div className="mt-4 flex gap-2"><Button size="small" variant="outline" onClick={() => choose(category)}><Icon name="edit" size={14} />Edit</Button><Button size="small" variant="ghost" onClick={() => remove(category.id)}><Icon name="trash" size={14} />Delete</Button></div></div></article>)}</div>
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{[...store.categories].sort((a, b) => a.order - b.order).map((category) => <article key={category.id} className="overflow-hidden border border-border bg-card">{category.image ? <StoreImage src={category.image} alt={category.name} className="h-48 w-full object-cover" /> : <div className="flex h-36 flex-col justify-between border-b border-border bg-burgundy-royal p-4 text-primary-foreground"><span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-antique-gold">Collection {String(category.order).padStart(2, "0")}</span><p className="font-display text-xl">{category.shortName || category.name}</p></div>}<div className="p-4"><p className="text-[10px] uppercase tracking-[0.13em] text-primary">Position {category.order}</p><h3 className="mt-1 font-display text-xl">{category.name}</h3><p className="mt-2 min-h-10 text-sm leading-5 text-muted-foreground">{category.description}</p><div className="mt-4 flex gap-2"><Button size="small" variant="outline" onClick={() => choose(category)}><Icon name="edit" size={14} />Edit</Button><Button size="small" variant="ghost" onClick={() => remove(category.id)}><Icon name="trash" size={14} />Delete</Button></div></div></article>)}</div>
   </>;
 }
 
@@ -386,7 +386,7 @@ function AdminBanner() {
 
 function AdminGalleryManager() {
   const { store, updateStore } = useRudra();
-  const blank = () => ({ id: "", title: "", tag: "", image: RUDRA_IMAGES.shivajiBust });
+  const blank = () => ({ id: "", title: "", tag: "", medium: "", image: "" });
   const [editing, setEditing] = useState("");
   const [draft, setDraft] = useState(blank);
 
@@ -428,14 +428,14 @@ function AdminGalleryManager() {
         <form onSubmit={save} className="mt-5 grid gap-4 border-y border-border py-5 sm:grid-cols-2">
           <label className="text-xs font-semibold">Title<input required value={draft.title} onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))} className="mt-1.5 w-full border border-input bg-background px-3 py-2.5 text-sm font-normal" /></label>
           <label className="text-xs font-semibold">Category label<input required value={draft.tag} onChange={(event) => setDraft((current) => ({ ...current, tag: event.target.value }))} className="mt-1.5 w-full border border-input bg-background px-3 py-2.5 text-sm font-normal" /></label>
-          <label className="text-xs font-semibold sm:col-span-2">Image URL<input required value={draft.image} onChange={(event) => setDraft((current) => ({ ...current, image: event.target.value }))} className="mt-1.5 w-full border border-input bg-background px-3 py-2.5 text-sm font-normal" /></label>
+          <label className="text-xs font-semibold sm:col-span-2">Image URL (optional)<input value={draft.image} onChange={(event) => setDraft((current) => ({ ...current, image: event.target.value }))} className="mt-1.5 w-full border border-input bg-background px-3 py-2.5 text-sm font-normal" /></label>
           <div className="flex gap-2 sm:col-span-2"><Button type="submit">Save gallery item</Button><Button type="button" variant="outline" onClick={() => { setDraft(blank()); setEditing(""); }}>Cancel</Button></div>
         </form>
       )}
       <div className="mt-4 divide-y divide-border">
         {store.gallery.map((item) => (
           <article key={item.id} className="grid gap-3 py-4 sm:grid-cols-[88px_minmax(0,1fr)_auto] sm:items-center">
-            <StoreImage src={item.image} alt="" className="aspect-square w-20 object-cover" />
+            {item.image ? <StoreImage src={item.image} alt="" className="aspect-square w-20 object-cover" /> : <div className="grid aspect-square w-20 place-items-center border border-antique-gold/50 bg-charcoal text-antique-gold"><Icon name="spark" size={18} /></div>}
             <div className="min-w-0"><h4 className="font-display text-lg">{item.title}</h4><p className="mt-1 text-xs text-muted-foreground">{item.tag}</p></div>
             <div className="flex gap-1"><button type="button" aria-label={`Edit ${item.title}`} onClick={() => { setDraft({ ...item }); setEditing(item.id); }} className="grid size-9 place-items-center text-muted-foreground hover:text-primary"><Icon name="edit" size={16} /></button><button type="button" aria-label={`Delete ${item.title}`} onClick={() => remove(item.id)} className="grid size-9 place-items-center text-muted-foreground hover:text-destructive"><Icon name="trash" size={16} /></button></div>
           </article>

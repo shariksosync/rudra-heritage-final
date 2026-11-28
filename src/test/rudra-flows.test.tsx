@@ -38,7 +38,14 @@ vi.mock("@tanstack/react-router", async () => {
 
 import { RudraApp } from "@/components/RudraApp.jsx";
 import { RudraProvider } from "@/context/RudraContext.jsx";
-import { ADMIN_EMAIL, ADMIN_PASSWORD, matchesAdminCredentials } from "@/data/mock-data.js";
+import { resolveAssetSrc } from "@/components/StoreUI.jsx";
+import {
+  ADMIN_EMAIL,
+  ADMIN_PASSWORD,
+  INITIAL_STORE,
+  RUDRA_IMAGES,
+  matchesAdminCredentials,
+} from "@/data/mock-data.js";
 
 function renderApp(initialPath = "/", initialSearch: Record<string, string> = {}) {
   routerState.pathname = initialPath;
@@ -154,7 +161,7 @@ describe("Rudra storefront & admin workflows", () => {
 
     expect(screen.getByRole("link", { name: /Follow Rudra Arts on Instagram/i })).toHaveAttribute(
       "href",
-      "https://www.instagram.com/",
+      "https://www.instagram.com/rudra_arts.kolhapur/",
     );
     expect(screen.getByRole("link", { name: /Chat with Rudra Arts on WhatsApp/i })).toHaveAttribute(
       "href",
@@ -168,7 +175,7 @@ describe("Rudra storefront & admin workflows", () => {
     const footer = screen.getByRole("contentinfo");
     expect(footer.querySelector('a[aria-label="Instagram"]')).toHaveAttribute(
       "href",
-      "https://www.instagram.com/",
+      "https://www.instagram.com/rudra_arts.kolhapur/",
     );
     expect(footer.querySelector('a[aria-label="WhatsApp"]')).toHaveAttribute(
       "href",
@@ -218,4 +225,34 @@ describe("Rudra storefront & admin workflows", () => {
       screen.getByText(/Enquire about a similar piece/i).closest("button"),
     ).toBeInTheDocument();
   }, 30000);
+
+  it("ships 14 catalog products and enforces globally unique non-repeating images across all sections", () => {
+    expect(INITIAL_STORE.products).toHaveLength(14);
+    expect(INITIAL_STORE.categories).toHaveLength(6);
+    expect(INITIAL_STORE.gallery).toHaveLength(6);
+
+    const usedUrls = [
+      resolveAssetSrc(INITIAL_STORE.banner.image),
+      resolveAssetSrc(RUDRA_IMAGES.artisanCraft ?? ""),
+      ...INITIAL_STORE.categories
+        .map((category) => category.image)
+        .filter(Boolean)
+        .map(resolveAssetSrc),
+      ...INITIAL_STORE.gallery
+        .map((item) => item.image)
+        .filter(Boolean)
+        .map(resolveAssetSrc),
+      ...INITIAL_STORE.products.map((product) => resolveAssetSrc(product.image)),
+    ];
+
+    expect(usedUrls).toHaveLength(28);
+    expect(new Set(usedUrls).size).toBe(usedUrls.length);
+    for (const category of INITIAL_STORE.categories) expect(category.image).toBeTruthy();
+    for (const item of INITIAL_STORE.gallery) expect(item.image).toBeTruthy();
+
+    for (const product of INITIAL_STORE.products) {
+      const normalized = product.images.map(resolveAssetSrc);
+      expect(normalized).toEqual([resolveAssetSrc(product.image)]);
+    }
+  });
 });

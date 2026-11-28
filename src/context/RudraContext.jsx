@@ -3,7 +3,8 @@ import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { hydrateStore, INITIAL_STORE } from "@/data/mock-data.js";
 
 const RudraContext = createContext(null);
-const STORAGE_KEY = "rudra-arts-demo-v1";
+const LEGACY_STORAGE_KEYS = ["rudra-arts-demo-v3", "rudra-arts-demo-v2", "rudra-arts-demo-v1"];
+const STORAGE_KEY = "rudra-arts-demo-v4";
 
 export function RudraProvider({ children }) {
   const routerNavigate = useNavigate();
@@ -48,6 +49,18 @@ export function RudraProvider({ children }) {
         if (parsed.customer) setCustomer(parsed.customer);
         if (parsed.adminAuthenticated) setAdminAuthenticated(true);
         if (parsed.lastOrder) setLastOrder(parsed.lastOrder);
+      } else {
+        const legacySaved = LEGACY_STORAGE_KEYS
+          .map((key) => window.localStorage.getItem(key))
+          .find(Boolean);
+        if (legacySaved) {
+          const parsed = JSON.parse(legacySaved);
+          if (Array.isArray(parsed.cart)) setCart(parsed.cart);
+          if (Array.isArray(parsed.wishlist)) setWishlist(parsed.wishlist);
+          if (parsed.customer) setCustomer(parsed.customer);
+          if (parsed.adminAuthenticated) setAdminAuthenticated(true);
+          if (parsed.lastOrder) setLastOrder(parsed.lastOrder);
+        }
       }
     } catch {
       try {
